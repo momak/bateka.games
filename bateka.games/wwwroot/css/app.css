@@ -1,0 +1,71 @@
+html, body {
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+#app {
+    height: 100%;
+}
+
+#blazor-error-ui {
+    background: #ffcc00;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0,0,0,0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
+
+/* ── Loading Spinner ── */
+.loading-progress {
+    position: relative;
+    display: block;
+    width: 8rem;
+    height: 8rem;
+    margin: 30vh auto 1rem;
+}
+
+    .loading-progress circle {
+        fill: none;
+        stroke: #6200EA;
+        stroke-width: 0.6rem;
+        transform-origin: 50% 50%;
+        transform: rotate(-90deg);
+    }
+
+        .loading-progress circle:last-child {
+            stroke: #6200EA33;
+            stroke-dasharray: 1px 200px;
+            stroke-dashoffset: 0;
+            animation: loading-spin 1.5s linear infinite;
+        }
+
+.loading-progress-text {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    color: #6200EA;
+}
+
+    .loading-progress-text::after {
+        content: "LOADING...";
+    }
+
+@keyframes loading-spin {
+    100% {
+        transform: rotate(270deg);
+    }
+}

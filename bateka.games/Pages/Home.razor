@@ -1,0 +1,59 @@
+﻿@page "/"
+
+<PageTitle>Bateka | Games — Home</PageTitle>
+
+<MudStack Spacing="6">
+
+    {{!-- Hero --}}
+    <MudPaper Elevation="0" Class="pa-8 rounded-xl"
+              Style="background: linear-gradient(135deg, #6200EA22 0%, #00BFA522 100%); border: 1px solid #6200EA33;">
+        <MudStack AlignItems="AlignItems.Center" Spacing="3">
+            <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Primary">
+                Welcome to GameHub 🎮
+            </MudText>
+            <MudText Typo="Typo.h6" Align="Align.Center" Class="mud-text-secondary" Style="max-width:600px;">
+                A collection of classic games built with Blazor. Pick a game from the menu or jump straight in below.
+            </MudText>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       StartIcon="@Icons.Material.Filled.PlayArrow"
+                       Href="/game/snake"
+                       Class="mt-2">
+                Play Now
+            </MudButton>
+        </MudStack>
+    </MudPaper>
+
+    {{!-- Game Cards --}}
+    <MudText Typo="Typo.h5" Class="mt-2">Choose a Game</MudText>
+
+    <MudGrid Spacing="4">
+
+        <MudItem xs="12" sm="6" md="4">
+            <GameCard Title="Snake"
+                      Description="Classic snake — grow your snake, avoid the walls and yourself."
+                      Icon="@Icons.Material.Filled.Gamepad"
+                      Href="/game/snake"
+                      Color="#6200EA" />
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <GameCard Title="Memory Match"
+                      Description="Flip cards and find matching pairs. Test your memory!"
+                      Icon="@Icons.Material.Filled.GridView"
+                      Href="/game/memory"
+                      Color="#00BFA5" />
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <GameCard Title="Tic Tac Toe"
+                      Description="The timeless 2-player classic. X vs O — who will win?"
+                      Icon="@Icons.Material.Filled.Close"
+                      Href="/game/tictactoe"
+                      Color="#FF6D00" />
+        </MudItem>
+
+    </MudGrid>
+
+</MudStack>
