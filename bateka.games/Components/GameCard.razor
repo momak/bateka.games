@@ -14,7 +14,8 @@
     <MudCardActions Class="justify-center pb-4">
         <MudButton Variant="Variant.Outlined"
                    Style="@($"color:{Color}; border-color:{Color};")"
-                   StartIcon="@Icons.Material.Filled.PlayArrow">
+                   StartIcon="@Icons.Material.Filled.PlayArrow"
+                   OnClick="@(() => Nav.NavigateTo(Href))">
             Play
         </MudButton>
     </MudCardActions>

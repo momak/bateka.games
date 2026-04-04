@@ -1,0 +1,101 @@
+﻿@page "/game/tictactoe"
+@layout MainLayout
+
+<PageTitle>Tic Tac Toe — GameHub</PageTitle>
+
+<MudStack Spacing="4" AlignItems="AlignItems.Center">
+
+    <!-- Header -->
+    <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Primary">
+        Tic Tac Toe
+    </MudText>
+
+    <!-- Stats Bar -->
+    <MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:500px;">
+        <MudGrid Justify="Justify.Center" Spacing="2">
+            <MudItem xs="2">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudText Typo="Typo.h5" Color="Color.Success">@Stats.Wins</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Wins</MudText>
+                </MudStack>
+            </MudItem>
+            <MudItem xs="2">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudText Typo="Typo.h5" Color="Color.Error">@Stats.Losses</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Losses</MudText>
+                </MudStack>
+            </MudItem>
+            <MudItem xs="2">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudText Typo="Typo.h5" Color="Color.Warning">@Stats.Draws</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Draws</MudText>
+                </MudStack>
+            </MudItem>
+            <MudItem xs="3">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudText Typo="Typo.h5">@Stats.WinRate%</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Win Rate</MudText>
+                </MudStack>
+            </MudItem>
+            <MudItem xs="2">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudText Typo="Typo.h5" Color="Color.Info">@Stats.AvgMoves</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Avg Moves</MudText>
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <!-- Difficulty -->
+    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">Difficulty:</MudText>
+        <MudChipSet T="Difficulty" @bind-SelectedValue="_difficulty" SelectionMode="SelectionMode.SingleSelection">
+            <MudChip T="Difficulty" Value="Difficulty.Easy" Color="Color.Success" Variant="Variant.Outlined">Easy</MudChip>
+            <MudChip T="Difficulty" Value="Difficulty.Medium" Color="Color.Warning" Variant="Variant.Outlined">Medium</MudChip>
+            <MudChip T="Difficulty" Value="Difficulty.Hard" Color="Color.Error" Variant="Variant.Outlined">Hard</MudChip>
+        </MudChipSet>
+    </MudStack>
+
+    <!-- Status -->
+    <MudText Typo="Typo.h6" Align="Align.Center" Color="@StatusColor">
+        @StatusMessage
+    </MudText>
+
+    <!-- Board -->
+    <div class="board @(_gameOver ? "board--disabled" : "")">
+        @for (int i = 0; i < 9; i++)
+        {
+            var index = i;
+            var cell = Board[index];
+            <button class="cell @GetCellClass(index)"
+                    @onclick="() => OnCellClick(index)"
+                    disabled="@(cell != CellState.Empty || _gameOver || _isAiThinking)">
+                @if (cell == CellState.X)
+                {
+                    <span class="cell-x">X</span>
+                }
+                else if (cell == CellState.O)
+                {
+                    <span class="cell-o">O</span>
+                }
+            </button>
+        }
+    </div>
+
+    <!-- Actions -->
+    <MudStack Row="true" Spacing="2">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Replay"
+                   OnClick="ResetGame">
+            New Game
+        </MudButton>
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Error"
+                   StartIcon="@Icons.Material.Filled.DeleteForever"
+                   OnClick="ResetStats">
+            Reset Stats
+        </MudButton>
+    </MudStack>
+
+</MudStack>

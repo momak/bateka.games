@@ -1,0 +1,139 @@
+﻿@page "/game/memory"
+@layout MainLayout
+
+<PageTitle>Memory Match — GameHub</PageTitle>
+
+<MudStack Spacing="4" AlignItems="AlignItems.Center">
+
+    <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Primary">
+        Memory Match
+    </MudText>
+
+    <!-- Stats -->
+    <MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:600px;">
+        <MudText Typo="Typo.overline" Class="mud-text-secondary" Align="Align.Center">Best Scores</MudText>
+        <MudGrid Justify="Justify.Center" Spacing="2" Class="mt-1">
+            @foreach (var size in AvailableSizes)
+            {
+                var best = GetBestStat(size);
+                <MudItem xs="6" sm="3">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@size pairs</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Primary">
+                            @(best == null ? "—" : $"{best.Moves} moves")
+                        </MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            @(best == null ? "—" : FormatTime(best.BestTime))
+                        </MudText>
+                    </MudStack>
+                </MudItem>
+            }
+        </MudGrid>
+        <MudDivider Class="my-2" />
+        <MudStack Row="true" Justify="Justify.Center" Spacing="4">
+            <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                <MudText Typo="Typo.h6">@Stats.GamesPlayed</MudText>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">Games Played</MudText>
+            </MudStack>
+        </MudStack>
+    </MudPaper>
+
+    <!-- Setup / In-Game Header -->
+    @if (!_gameStarted)
+    {
+        <MudPaper Elevation="2" Class="pa-6 rounded-xl" Style="max-width:400px; width:100%;">
+            <MudStack Spacing="4" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h6">Choose Number of Pairs</MudText>
+                <MudSlider @bind-Value="_selectedPairs"
+                           Min="3" Max="8" Step="1"
+                           Color="Color.Primary"
+                           Style="width:100%;">
+                    @_selectedPairs Pairs (@(_selectedPairs * 2) cards)
+                </MudSlider>
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                    Grid: @GetGridDimensions(_selectedPairs)
+                </MudText>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           StartIcon="@Icons.Material.Filled.PlayArrow"
+                           OnClick="StartGame"
+                           FullWidth="true">
+                    Start Game
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+    }
+    else
+    {
+        <!--In - Game Status-->
+        <MudStack Row="true" Spacing="4" AlignItems="AlignItems.Center" Justify="Justify.Center">
+            <MudChip T="string" Color="Color.Primary" Icon="@Icons.Material.Filled.TouchApp">
+                Moves: @_moves
+            </MudChip>
+            <MudChip T="string" Color="Color.Secondary" Icon="@Icons.Material.Filled.Timer">
+                @FormatTime(_elapsed)
+            </MudChip>
+            <MudChip T="string" Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle">
+                @_matchesFound / @_selectedPairs matched
+            </MudChip>
+        </MudStack>
+
+        <!--Board-->
+        <div class="memory-board" style="@GetGridStyle()">
+            @for (int i = 0; i < _cards.Count; i++)
+            {
+                var card = _cards[i];
+                var idx = i;
+                <div class="card-wrapper @(card.IsFlipped || card.IsMatched ? "flipped" : "") @(card.IsMatched ? "matched" : "")"
+                     @onclick="() => OnCardClick(idx)">
+                    <div class="card-inner">
+                        <div class="card-front">?</div>
+                        <div class="card-back">@card.Emoji</div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!--Actions-->
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Replay"
+                       OnClick="RestartGame">
+                Restart
+            </MudButton>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Default"
+                       StartIcon="@Icons.Material.Filled.ArrowBack"
+                       OnClick="BackToSetup">
+                Change Size
+            </MudButton>
+        </MudStack>
+    }
+
+    <!-- Win Dialog -->
+    <MudDialog @bind-Visible="_showWinDialog">
+        <TitleContent>
+            <MudText Typo="Typo.h6">🎉 You Win!</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudStack Spacing="2" AlignItems="AlignItems.Center">
+                <MudText>@_selectedPairs pairs matched!</MudText>
+                <MudText>Moves: <strong>@_moves</strong></MudText>
+                <MudText>Time: <strong>@FormatTime(_elapsed)</strong></MudText>
+                @if (_isNewBest)
+                {
+                    <MudChip T="string" Color="Color.Warning" Icon="@Icons.Material.Filled.EmojiEvents">
+                        New Best Score!
+                    </MudChip>
+                }
+            </MudStack>
+        </DialogContent>
+        <DialogActions>
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="RestartGame">Play Again</MudButton>
+            <MudButton Color="Color.Default" Variant="Variant.Outlined" OnClick="BackToSetup">Change Size</MudButton>
+        </DialogActions>
+    </MudDialog>
+
+</MudStack>
