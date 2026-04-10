@@ -1,4 +1,4 @@
-/* bateka.games/Layout/MainLayout.razor.rz.scp.css */
+/* /Layout/MainLayout.razor.rz.scp.css */
 .page[b-7dc6epndkw] {
     position: relative;
     display: flex;
@@ -76,7 +76,7 @@ main[b-7dc6epndkw] {
         padding-right: 1.5rem !important;
     }
 }
-/* bateka.games/Layout/NavMenu.razor.rz.scp.css */
+/* /Layout/NavMenu.razor.rz.scp.css */
 .navbar-toggler[b-9m6cjdldkn] {
     background-color: rgba(255, 255, 255, 0.1);
 }
@@ -160,7 +160,7 @@ main[b-7dc6epndkw] {
         overflow-y: auto;
     }
 }
-/* bateka.games/Pages/Memory/MemoryGame.razor.rz.scp.css */
+/* /Pages/Memory/MemoryGame.razor.rz.scp.css */
 .memory-board[b-6yfn2gq0h1] {
     display: grid;
     gap: 10px;
@@ -238,7 +238,7 @@ main[b-7dc6epndkw] {
         transform: scale(1);
     }
 }
-/* bateka.games/Pages/Snake/Snake.razor.rz.scp.css */
+/* /Pages/Snake/Snake.razor.rz.scp.css */
 .snake-container[b-hfd06zt8og] {
     position: relative;
     outline: none;
@@ -283,7 +283,7 @@ main[b-7dc6epndkw] {
     border: 2px solid var(--mud-palette-primary);
     box-shadow: 0 0 12px var(--mud-palette-primary), 0 0 24px rgba(187, 134, 252, 0.2);
 }
-/* bateka.games/Pages/TicTacToe/TicTacToe.razor.rz.scp.css */
+/* /Pages/TicTacToe/TicTacToe.razor.rz.scp.css */
 .board[b-q07wjnro5g] {
     display: grid;
     grid-template-columns: repeat(3, 110px);
