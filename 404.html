@@ -3,21 +3,20 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>GameHub</title>
+    <title>Bateka | Games</title>
     <script>
-        var segments = 1;
         var l = window.location;
+        var base = '/bateka.games';
+        var path = l.pathname.slice(base.length);
         l.replace(
             l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-            l.pathname.split('/').slice(0, 1 + segments).join('/') + '/?p=/' +
-            l.pathname.slice(1).split('/').slice(segments).join('/').replace(/&/g, '~and~') +
+            base + '/?p=' + path.replace(/&/g, '~and~') +
             (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
             l.hash
         );
     </script>
 </head>
 
-<body>
-</body>
+<body></body>
 
 </html>
