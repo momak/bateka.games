@@ -8,19 +8,22 @@
     <base href="/bateka.games/" />
     <!-- decode script -->
     <script>
+        window.__spaRedirectPath = null;
         (function (l) {
             if (l.search[1] === '/') {
                 var decoded = l.search.slice(1).split('&').map(function (s) {
                     return s.replace(/~and~/g, '&');
                 }).join('?');
+                var path = decoded.startsWith('/') ? decoded : '/' + decoded;
+                window.__spaRedirectPath = path;
                 window.history.replaceState(null, null,
-                    l.pathname + decoded + l.hash
+                    '/bateka.games' + path
                 );
             }
         }(window.location))
     </script>
     <!-- decode script -->
-    <link href="_framework/dotnet.2c4g8p4uty.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-Drqw0VRcMH6cEjEhKyx5t0Khk/cj5D3NzNG38OxgVzI=" />
+    <link href="_framework/dotnet.d4pn19akok.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-7eOV3oeA9KlNY9u7ofXJ8iauJSvv5PFvDVnWEsLhD9M=" />
     <!-- MudBlazor -->
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Nunito:wght@400;600;700&display=swap"
@@ -39,7 +42,7 @@
     <script type="importmap">{
   "imports": {
     "./_framework/blazor.webassembly.js": "./_framework/blazor.webassembly.66stpp682q.js",
-    "./_framework/dotnet.js": "./_framework/dotnet.2c4g8p4uty.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.d4pn19akok.js",
     "./_framework/dotnet.native.js": "./_framework/dotnet.native.ykrnppwhq2.js",
     "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.peu2mfb29t.js"
   },
@@ -47,8 +50,8 @@
   "integrity": {
     "./_framework/blazor.webassembly.66stpp682q.js": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
     "./_framework/blazor.webassembly.js": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
-    "./_framework/dotnet.2c4g8p4uty.js": "sha256-Drqw0VRcMH6cEjEhKyx5t0Khk/cj5D3NzNG38OxgVzI=",
-    "./_framework/dotnet.js": "sha256-Drqw0VRcMH6cEjEhKyx5t0Khk/cj5D3NzNG38OxgVzI=",
+    "./_framework/dotnet.d4pn19akok.js": "sha256-7eOV3oeA9KlNY9u7ofXJ8iauJSvv5PFvDVnWEsLhD9M=",
+    "./_framework/dotnet.js": "sha256-7eOV3oeA9KlNY9u7ofXJ8iauJSvv5PFvDVnWEsLhD9M=",
     "./_framework/dotnet.native.js": "sha256-nheeN4H7Js+avp9nd/sQxdaehbeEx3qriXjiZ3pSw6U=",
     "./_framework/dotnet.native.ykrnppwhq2.js": "sha256-nheeN4H7Js+avp9nd/sQxdaehbeEx3qriXjiZ3pSw6U=",
     "./_framework/dotnet.runtime.js": "sha256-cajUr4vA/MpLPWj3omULUOwEQw3i8CE2n8AmDheqWBM=",
