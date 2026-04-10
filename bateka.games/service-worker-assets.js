@@ -1,5 +1,5 @@
 self.assetsManifest = {
-  "version": "vShv26x+",
+  "version": "tq1at24R",
   "assets": [
     {
       "hash": "sha256-fJdTB1ojgij/0vJbJ49AWnEobQFfiCM+X6R/zLms08Y=",
@@ -182,16 +182,16 @@ self.assetsManifest = {
       "url": "bateka.games/_framework/System.fv399lvvsg.wasm"
     },
     {
-      "hash": "sha256-PPiLqKltJw6fmfjqmfZ1J5L7Y0Zy0YT1bzm4nlvUXIk=",
-      "url": "bateka.games/_framework/bateka.games.cq5vp0ywdu.wasm"
+      "hash": "sha256-vZUwtaNuGeUt4yuez0sgzHfqlVufbaEH/N/TCjkZsIw=",
+      "url": "bateka.games/_framework/bateka.games.tgylc2y43r.wasm"
     },
     {
       "hash": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
       "url": "bateka.games/_framework/blazor.webassembly.66stpp682q.js"
     },
     {
-      "hash": "sha256-EiviSmr66FLyIuq/fude4aUussNG3sDevvBJW9M3Zm4=",
-      "url": "bateka.games/_framework/dotnet.i3fqa35q1f.js"
+      "hash": "sha256-n+ljsCzhCm+10vkSI09Z3Ulwq8K95YyPohDTJzt4Oeo=",
+      "url": "bateka.games/_framework/dotnet.5zvmzyc1mq.js"
     },
     {
       "hash": "sha256-Ebk+Km0uqtdo/srKe0YcuUOlFykCcKVkBt03gTWt0aU=",
@@ -238,7 +238,7 @@ self.assetsManifest = {
       "url": "bateka.games/icon-512.png"
     },
     {
-      "hash": "sha256-xjg97HLCZKcoUvRPS6eGEqiE0+RtjWu84EDbRF1xDkg=",
+      "hash": "sha256-HLHe304fkVzSopobkOWkCNwe9AwyKPYf6kPBMebWyVw=",
       "url": "bateka.games/index.html"
     },
     {
