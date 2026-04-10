@@ -1,5 +1,5 @@
 self.assetsManifest = {
-  "version": "RJCTaBLP",
+  "version": "oiqiAJVv",
   "assets": [
     {
       "hash": "sha256-0WCrXy91DZOG3pmYsQFEG+F7KpXioOMAbTXwapWxb2k=",
@@ -142,12 +142,12 @@ self.assetsManifest = {
       "url": "_framework/System.ObjectModel.y8lls1r0b7.wasm"
     },
     {
-      "hash": "sha256-j7d3VhzN7EQn5HU/QA0l7xNu1U/ezwHqKmipYKvzISw=",
-      "url": "_framework/System.Private.CoreLib.rhlvtj5ayl.wasm"
+      "hash": "sha256-0XjhP2aPIPqEPlxVTpiDaxqqI1yll1ijwxGwjcuxPmk=",
+      "url": "_framework/System.Private.CoreLib.fw6h2qqnbo.wasm"
     },
     {
-      "hash": "sha256-+tBS8HX2VoGtaVQ/mDJYnr67XozTRU1nZdOkfIX+HAw=",
-      "url": "_framework/System.Private.Uri.6gcshg5zt8.wasm"
+      "hash": "sha256-nnJBh/GZj3fTiRF8Y7DAjwxsizNxmH2BuxuvnbYQbuI=",
+      "url": "_framework/System.Private.Uri.uhucsn9mu5.wasm"
     },
     {
       "hash": "sha256-pg1DdfEus8MgtvuevXJW7tX0CHVfSV+Zu9N/Xlo6NMY=",
@@ -182,16 +182,16 @@ self.assetsManifest = {
       "url": "_framework/System.fv399lvvsg.wasm"
     },
     {
-      "hash": "sha256-DPMGpLdvkff4/enBJKZjPyUn3UiWqWjeTQIp7KZQRn0=",
-      "url": "_framework/bateka.games.4ckkxe7xow.wasm"
+      "hash": "sha256-0BXSLNu/CAxSjsjU7DCD1owKTUV7MyIi2diOQFbEWQc=",
+      "url": "_framework/bateka.games.w4isn95to4.wasm"
     },
     {
       "hash": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
       "url": "_framework/blazor.webassembly.66stpp682q.js"
     },
     {
-      "hash": "sha256-BKu4Gtgbhi3QFW3toPXPARvlUQiJfO0WFBFO87eo4lM=",
-      "url": "_framework/dotnet.0ztd42nxth.js"
+      "hash": "sha256-8tqgJxB0I7VfQtiVMp89Zst75PRhVo2YiA7DqdLR9Ws=",
+      "url": "_framework/dotnet.aqwtw4yrwz.js"
     },
     {
       "hash": "sha256-Ebk+Km0uqtdo/srKe0YcuUOlFykCcKVkBt03gTWt0aU=",
@@ -242,7 +242,7 @@ self.assetsManifest = {
       "url": "icon192.png"
     },
     {
-      "hash": "sha256-gHVnfI2PnQj54UruIUBZlEsklt1ciZ9S8gVFO5Ji9z8=",
+      "hash": "sha256-KLGONri+aRWHb7NldMG7VvCMA3T5pTtrEsMhtHD0wUw=",
       "url": "index.html"
     },
     {
