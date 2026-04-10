@@ -7,7 +7,7 @@ namespace bateka.games;
 public partial class App : ComponentBase
 {
     [Inject]
-    private NavigationManager NavigationManager { get; set; } = null!;
+    private NavigationManager Nav { get; set; } = null!;
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
     private ErrorBoundary? _errorBoundary;
@@ -16,11 +16,16 @@ public partial class App : ComponentBase
     {
         if (firstRender)
         {
+            await JS.InvokeVoidAsync("console.log", "Current URL:", Nav.Uri);
+            await JS.InvokeVoidAsync("console.log", "Base URI:", Nav.BaseUri);
+
             var path = await JS.InvokeAsync<string?>("eval", "window.__spaRedirectPath");
+            await JS.InvokeVoidAsync("console.log", "Redirect path:", path);
+
             if (!string.IsNullOrEmpty(path))
             {
                 await JS.InvokeVoidAsync("eval", "window.__spaRedirectPath = null");
-                NavigationManager.NavigateTo(path, replace: true);
+                Nav.NavigateTo(path, replace: true);
             }
         }
     }
@@ -30,6 +35,6 @@ public partial class App : ComponentBase
     private void ToHome()
     {
         _errorBoundary?.Recover();
-        NavigationManager.NavigateTo("");
+        Nav.NavigateTo("");
     }
 }
