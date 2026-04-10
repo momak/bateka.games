@@ -21,6 +21,16 @@ jobs:
       - name: Publish
         run: dotnet publish -c Release -o release --nologo
 
+      - name: Verify index.html before sed
+        run: grep 'base href' release/wwwroot/index.html
+
+      - name: Fix base href
+        run: |
+          sed -i 's|<base href="/" />|<base href="/bateka.games/" />|g' release/wwwroot/index.html
+
+      - name: Verify index.html after sed
+        run: grep 'base href' release/wwwroot/index.html
+
       - name: Add .nojekyll
         run: touch release/wwwroot/.nojekyll
 
