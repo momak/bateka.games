@@ -16,17 +16,17 @@ public partial class App : ComponentBase
     {
         if (firstRender)
         {
-            await JS.InvokeVoidAsync("console.log", "Current URL:", Nav.Uri);
-            await JS.InvokeVoidAsync("console.log", "Base URI:", Nav.BaseUri);
+            //await JS.InvokeVoidAsync("console.log", "Current URL:", Nav.Uri);
+            //await JS.InvokeVoidAsync("console.log", "Base URI:", Nav.BaseUri);
 
             var uri = new Uri(Nav.Uri);
             var query = uri.Query;
 
-            await JS.InvokeVoidAsync("console.log", "Query:", query);
+            //await JS.InvokeVoidAsync("console.log", "Query:", query);
             var path = ExtractQueryPath(query);
             if (!string.IsNullOrEmpty(path))
             {
-                await JS.InvokeVoidAsync("console.log", "Navigating to:", path);
+                //await JS.InvokeVoidAsync("console.log", "Navigating to:", path);
                 Nav.NavigateTo(path, replace: true);
             }
         }
