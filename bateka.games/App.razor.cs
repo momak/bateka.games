@@ -26,7 +26,7 @@ public partial class App : ComponentBase
 
             if (query.StartsWith("?p=/") || query.StartsWith("?/"))
             {
-                var path = query.TrimStart('?').TrimStart('p').TrimStart('=');
+                var path = query.TrimStart('?').TrimStart('p').TrimStart('=').TrimStart('/');
                 await JS.InvokeVoidAsync("console.log", "Navigating to:", path);
                 Nav.NavigateTo(path, replace: true);
             }
