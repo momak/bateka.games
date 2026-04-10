@@ -6,10 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <GHPagesBase>Bateka.Games</GHPagesBase>
+    <StaticWebAssetBasePath Condition="'$(Configuration)' == 'Release'">/bateka.games</StaticWebAssetBasePath>  
   </PropertyGroup>
 
   <ItemGroup>
