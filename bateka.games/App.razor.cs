@@ -19,12 +19,15 @@ public partial class App : ComponentBase
             await JS.InvokeVoidAsync("console.log", "Current URL:", Nav.Uri);
             await JS.InvokeVoidAsync("console.log", "Base URI:", Nav.BaseUri);
 
-            var path = await JS.InvokeAsync<string?>("eval", "window.__spaRedirectPath");
-            await JS.InvokeVoidAsync("console.log", "Redirect path:", path);
+            var uri = new Uri(Nav.Uri);
+            var query = uri.Query;
 
-            if (!string.IsNullOrEmpty(path))
+            await JS.InvokeVoidAsync("console.log", "Query:", query);
+
+            if (query.StartsWith("?p=/") || query.StartsWith("?/"))
             {
-                await JS.InvokeVoidAsync("eval", "window.__spaRedirectPath = null");
+                var path = query.TrimStart('?').TrimStart('p').TrimStart('=');
+                await JS.InvokeVoidAsync("console.log", "Navigating to:", path);
                 Nav.NavigateTo(path, replace: true);
             }
         }
