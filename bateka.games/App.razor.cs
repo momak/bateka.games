@@ -26,9 +26,6 @@ public partial class App : ComponentBase
             var path = ExtractQueryPath(query);
             if (!string.IsNullOrEmpty(path))
             {
-             //   if (query.StartsWith("?p=/") || query.StartsWith("?/"))
-            //{
-                //var path = query.TrimStart('?').TrimStart('p').TrimStart('=').TrimStart('/');
                 await JS.InvokeVoidAsync("console.log", "Navigating to:", path);
                 Nav.NavigateTo(path, replace: true);
             }
@@ -45,38 +42,34 @@ public partial class App : ComponentBase
 
     private static string? ExtractQueryPath(string query)
     {
-        if (string.IsNullOrEmpty(query) || query.Length < 2)
+        if (string.IsNullOrEmpty(query))
             return null;
 
-        // Remove leading ?
-        var normalized = query.StartsWith("?") ? query[1..] : query;
+        var span = query.AsSpan();
 
-        // Best-effort extraction of p parameter
-        if (normalized.StartsWith("p="))
-        {
-            normalized = normalized[2..];
-        }
-        else if (normalized.StartsWith("p") && normalized.Length > 1 && normalized[1] != '=')
-        {
-            // Handle ?pXXX format (malformed, but best effort)
-            normalized = normalized[1..];
-        }
-        else if (normalized.StartsWith("="))
-        {
-            // Handle ?=XXX format
-            normalized = normalized[1..];
-        }
-        // else: doesn't start with known pattern, use as-is for best effort
+        // Skip leading '?'
+        if (span[0] == '?')
+            span = span[1..];
 
-        // Extract the value (stop at & or next ?)
-        var endIndex = normalized.IndexOfAny(['&', '?']);
-        if (endIndex > 0)
+        if (span.IsEmpty)
+            return null;
+
+        // Skip 'p' and optional '='
+        if (span[0] == 'p')
         {
-            normalized = normalized[..endIndex];
+            span = (span.Length > 1 && span[1] == '=')
+                ? span[2..]
+                : span[1..];
         }
+
+        // Find terminator (& or ?)
+        var endIndex = span.IndexOfAny('&', '?');
+        if (endIndex >= 0)
+            span = span[..endIndex];
 
         // Remove leading slashes and validate
-        normalized = normalized.TrimStart('/');
-        return string.IsNullOrEmpty(normalized) ? null : normalized;
+        span = span.TrimStart('/');
+
+        return span.IsEmpty ? null : span.ToString();
     }
 }
