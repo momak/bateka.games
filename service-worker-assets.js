@@ -1,5 +1,5 @@
 self.assetsManifest = {
-  "version": "I4QyP7DG",
+  "version": "mk//jQjX",
   "assets": [
     {
       "hash": "sha256-0WCrXy91DZOG3pmYsQFEG+F7KpXioOMAbTXwapWxb2k=",
@@ -142,8 +142,8 @@ self.assetsManifest = {
       "url": "_framework/System.ObjectModel.y8lls1r0b7.wasm"
     },
     {
-      "hash": "sha256-0XjhP2aPIPqEPlxVTpiDaxqqI1yll1ijwxGwjcuxPmk=",
-      "url": "_framework/System.Private.CoreLib.fw6h2qqnbo.wasm"
+      "hash": "sha256-YhCUWp5X/tu+mwGs/Oc2Bjg8aupWJFmOEZxfJzryDEU=",
+      "url": "_framework/System.Private.CoreLib.y7s3if1lqy.wasm"
     },
     {
       "hash": "sha256-nnJBh/GZj3fTiRF8Y7DAjwxsizNxmH2BuxuvnbYQbuI=",
@@ -182,8 +182,8 @@ self.assetsManifest = {
       "url": "_framework/System.fv399lvvsg.wasm"
     },
     {
-      "hash": "sha256-r4H5icI1IROi2SLcpjVKSWq/jFCJCaDwNcQ4iCqctH8=",
-      "url": "_framework/bateka.games.h0glyu2uzl.wasm"
+      "hash": "sha256-eiALUrcfkn+16awX1NPUCfFQVYVW06lTJQIHGsfQqIA=",
+      "url": "_framework/bateka.games.y9a27q7jnz.wasm"
     },
     {
       "hash": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
@@ -198,8 +198,8 @@ self.assetsManifest = {
       "url": "_framework/dotnet.native.ykrnppwhq2.js"
     },
     {
-      "hash": "sha256-O0Pge/+Vf5EmFkZpAls/QTbHBgzy3roABMXSeuGhv6g=",
-      "url": "_framework/dotnet.npmd3z8bcd.js"
+      "hash": "sha256-MHON/IXgxTC+QCViHAXy5bD9AMwYLya/jQtIWP/cq8w=",
+      "url": "_framework/dotnet.oy76zzn53h.js"
     },
     {
       "hash": "sha256-cajUr4vA/MpLPWj3omULUOwEQw3i8CE2n8AmDheqWBM=",
@@ -242,7 +242,7 @@ self.assetsManifest = {
       "url": "icon192.png"
     },
     {
-      "hash": "sha256-hlKv8U+xR7KtNdv3U+7Wvyb4acpuZ9SV6ElvaPK0ciM=",
+      "hash": "sha256-1uL6hpRJkW/Iv5e/QIxdcDQVrD+TYe7f9wphGgkRndI=",
       "url": "index.html"
     },
     {
