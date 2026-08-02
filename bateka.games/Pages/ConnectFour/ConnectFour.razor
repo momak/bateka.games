@@ -1,0 +1,147 @@
+﻿@page "/game/connectfour"
+@layout MainLayout
+
+<PageTitle>Connect Four — GameHub</PageTitle>
+
+<MudStack Spacing="4" AlignItems="AlignItems.Center">
+
+    <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Primary">
+        Connect Four
+    </MudText>
+
+    <MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:560px;">
+        <MudGrid Justify="Justify.Center" Spacing="2">
+            <MudItem xs="2">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudText Typo="Typo.h6">@Stats.GamesPlayed</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Played</MudText>
+                </MudStack>
+            </MudItem>
+            <MudItem xs="2">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudText Typo="Typo.h6" Color="Color.Success">@Stats.Wins</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Wins</MudText>
+                </MudStack>
+            </MudItem>
+            <MudItem xs="2">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudText Typo="Typo.h6" Color="Color.Error">@Stats.Losses</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Losses</MudText>
+                </MudStack>
+            </MudItem>
+            <MudItem xs="2">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudText Typo="Typo.h6" Color="Color.Warning">@Stats.Draws</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Draws</MudText>
+                </MudStack>
+            </MudItem>
+            <MudItem xs="2">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudText Typo="Typo.h6" Color="Color.Info">@Stats.LongestWinStreak</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Streak</MudText>
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    @if (!_gameStarted)
+    {
+        <MudPaper Elevation="2" Class="pa-6 rounded-xl" Style="max-width:400px; width:100%;">
+            <MudStack Spacing="4" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h6">Game Mode</MudText>
+                <MudChipSet T="GameMode" @bind-SelectedValue="_gameMode"
+                            SelectionMode="SelectionMode.SingleSelection">
+                    <MudChip T="GameMode" Value="GameMode.SinglePlayer"
+                             Color="Color.Primary" Variant="Variant.Outlined">
+                        🤖 vs AI
+                    </MudChip>
+                    <MudChip T="GameMode" Value="GameMode.TwoPlayer"
+                             Color="Color.Secondary" Variant="Variant.Outlined">
+                        👥 2 Players
+                    </MudChip>
+                </MudChipSet>
+
+                @if (_gameMode == GameMode.SinglePlayer)
+                {
+                    <MudText Typo="Typo.h6">Difficulty</MudText>
+                    <MudChipSet T="ConnectFourDifficulty" @bind-SelectedValue="_difficulty"
+                                SelectionMode="SelectionMode.SingleSelection">
+                        <MudChip T="ConnectFourDifficulty" Value="ConnectFourDifficulty.Easy"
+                                 Color="Color.Success" Variant="Variant.Outlined">Easy</MudChip>
+                        <MudChip T="ConnectFourDifficulty" Value="ConnectFourDifficulty.Medium"
+                                 Color="Color.Warning" Variant="Variant.Outlined">Medium</MudChip>
+                        <MudChip T="ConnectFourDifficulty" Value="ConnectFourDifficulty.Hard"
+                                 Color="Color.Error" Variant="Variant.Outlined">Hard</MudChip>
+                    </MudChipSet>
+                }
+
+                <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                           Size="Size.Large" FullWidth="true"
+                           StartIcon="@Icons.Material.Filled.PlayArrow"
+                           OnClick="StartGame">
+                    Start Game
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+    }
+    else
+    {
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+            <div class="disc disc--@(_currentPlayer == 1 ? "red" : "yellow") disc--indicator"></div>
+            <MudText Typo="Typo.h6" Color="@StatusColor">@StatusMessage</MudText>
+        </MudStack>
+        
+        <div class="cf-board">
+            <div class="cf-columns">
+                @for (int c = 0; c < Cols; c++)
+                {
+                    var col = c;
+                    <button class="cf-col-btn @(_hoverCol == col ? "cf-col-btn--hover" : "")"
+                            @onmouseenter="() => _hoverCol = col"
+                            @onmouseleave="() => _hoverCol = null"
+                            @onclick="() => OnColumnClick(col)">
+                        @if (_hoverCol == col && !_gameOver)
+                        {
+                            <div class="disc disc--@(_currentPlayer == 1 ? "red" : "yellow") disc--preview"></div>
+                        }
+                    </button>
+                }
+            </div>
+
+            <div class="cf-grid">
+                @for (int r = 0; r < Rows; r++)
+                {
+                    for (int c = 0; c < Cols; c++)
+                    {
+                        var row = r;
+                        var col = c;
+                        var cell = _board[r, c];
+                        var isWinner = _winningCells.Contains((row, col));
+                        <div class="cf-cell">
+                            <div class="disc @GetDiscClass(cell, isWinner)"></div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+        
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Replay"
+                       OnClick="StartGame">
+                New Game
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Default"
+                       StartIcon="@Icons.Material.Filled.ArrowBack"
+                       OnClick="BackToSetup">
+                Change Mode
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Error"
+                       StartIcon="@Icons.Material.Filled.DeleteForever"
+                       OnClick="ResetStats">
+                Reset Stats
+            </MudButton>
+        </MudStack>
+    }
+
+</MudStack>

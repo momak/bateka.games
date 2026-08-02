@@ -1,4 +1,5 @@
-﻿using bateka.games.Pages.Memory;
+﻿using bateka.games.Pages.ConnectFour;
+using bateka.games.Pages.Memory;
 using bateka.games.Pages.Snake;
 using bateka.games.Pages.TicTacToe;
 using Microsoft.AspNetCore.Components;
@@ -14,6 +15,8 @@ public partial class Leaderboard : ComponentBase
     private MemoryStats? _memoryStats;
     private SnakeStats? _snakeStats;
     private List<Achievement> _achievements = [];
+    private ConnectFourStats? _cfStats;
+
 
     private string _memoryBestLabel =>
         _memoryStats?.BestScores.OrderBy(s => s.Moves).FirstOrDefault() is { } best
@@ -31,6 +34,7 @@ public partial class Leaderboard : ComponentBase
         _tttStats = await LoadStat<TicTacToeStats>("ttt_stats");
         _memoryStats = await LoadStat<MemoryStats>("memory_stats");
         _snakeStats = await LoadStat<SnakeStats>("snake_stats");
+        _cfStats = await LoadStat<ConnectFourStats>("cf_stats");  // ← add
     }
 
     private async Task<T?> LoadStat<T>(string key) where T : class
@@ -127,10 +131,11 @@ public partial class Leaderboard : ComponentBase
             new Achievement
             {
                 Icon = "🎮", Title = "Gamer",
-                Description = "Play all 3 games at least once.",
+                Description = "Play all 4 games at least once.",
                 Unlocked = (_tttStats?.Total ?? 0) >= 1 &&
                            (_memoryStats?.GamesPlayed ?? 0) >= 1 &&
-                           (_snakeStats?.GamesPlayed ?? 0) >= 1
+                           (_snakeStats?.GamesPlayed ?? 0) >= 1 &&
+                           (_cfStats?.GamesPlayed ?? 0) >= 1       // ← add
             },
             new Achievement
             {
@@ -138,7 +143,28 @@ public partial class Leaderboard : ComponentBase
                 Description = "Play a combined total of 50 games.",
                 Unlocked = ((_tttStats?.Total ?? 0) +
                             (_memoryStats?.GamesPlayed ?? 0) +
-                            (_snakeStats?.GamesPlayed ?? 0)) >= 50
+                            (_snakeStats?.GamesPlayed ?? 0) +
+                            (_cfStats?.GamesPlayed ?? 0)) >= 50    // ← add
+            },
+
+            // Connect Four
+            new Achievement
+            {
+                Icon = "🔴", Title = "First Drop",
+                Description = "Win your first Connect Four game.",
+                Unlocked = (_cfStats?.Wins ?? 0) >= 1
+            },
+            new Achievement
+            {
+                Icon = "🔥", Title = "On a Roll",
+                Description = "Win 3 games in a row.",
+                Unlocked = (_cfStats?.LongestWinStreak ?? 0) >= 3
+            },
+            new Achievement
+            {
+                Icon = "👑", Title = "Connect King",
+                Description = "Win 10 Connect Four games.",
+                Unlocked = (_cfStats?.Wins ?? 0) >= 10
             },
         ];
     }

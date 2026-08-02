@@ -15,7 +15,7 @@
               Style="background: linear-gradient(135deg, var(--mud-palette-primary) 0%, var(--mud-palette-secondary) 100%);">
         <MudText Typo="Typo.overline" Style="color:rgba(255,255,255,0.7);">Personal Bests</MudText>
         <MudGrid Spacing="3" Class="mt-1">
-            <MudItem xs="12" sm="4">
+            <MudItem xs="12" sm="3">
                 <MudStack Spacing="1">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
                         <MudIcon Icon="@Icons.Material.Filled.Close" Style="color:white;" />
@@ -32,7 +32,7 @@
                     </MudText>
                 </MudStack>
             </MudItem>
-            <MudItem xs="12" sm="4">
+            <MudItem xs="12" sm="3">
                 <MudStack Spacing="1">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
                         <MudIcon Icon="@Icons.Material.Filled.GridView" Style="color:white;" />
@@ -48,7 +48,7 @@
                     </MudText>
                 </MudStack>
             </MudItem>
-            <MudItem xs="12" sm="4">
+            <MudItem xs="12" sm="3">
                 <MudStack Spacing="1">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
                         <MudIcon Icon="@Icons.Material.Filled.Gamepad" Style="color:white;" />
@@ -64,6 +64,22 @@
                     </MudText>
                 </MudStack>
             </MudItem>
+            <MudItem xs="12" sm="3">
+                <MudStack Spacing="1">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                        <MudIcon Icon="@Icons.Material.Filled.Album" Style="color:white;" />
+                        <MudText Typo="Typo.subtitle1" Style="color:white; font-family:'Orbitron',sans-serif;">
+                            Connect Four
+                        </MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.85);">
+                        Wins: <strong>@(_cfStats?.Wins ?? 0)</strong>
+                    </MudText>
+                    <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.85);">
+                        Streak: <strong>@(_cfStats?.LongestWinStreak ?? 0)</strong>
+                    </MudText>
+                </MudStack>
+            </MudItem>
         </MudGrid>
     </MudPaper>
 
@@ -71,7 +87,7 @@
     <MudGrid Spacing="4">
 
         <!-- Tic Tac Toe -->
-        <MudItem xs="12" md="4">
+        <MudItem xs="12" md="3">
             <MudCard Elevation="3" Class="rounded-xl" Style="height:100%;">
                 <MudCardHeader>
                     <CardHeaderAvatar>
@@ -109,7 +125,7 @@
         </MudItem>
 
         <!-- Memory Match -->
-        <MudItem xs="12" md="4">
+        <MudItem xs="12" md="3">
             <MudCard Elevation="3" Class="rounded-xl" Style="height:100%;">
                 <MudCardHeader>
                     <CardHeaderAvatar>
@@ -151,7 +167,7 @@
         </MudItem>
 
         <!-- Snake -->
-        <MudItem xs="12" md="4">
+        <MudItem xs="12" md="3">
             <MudCard Elevation="3" Class="rounded-xl" Style="height:100%;">
                 <MudCardHeader>
                     <CardHeaderAvatar>
@@ -186,6 +202,43 @@
             </MudCard>
         </MudItem>
 
+        <!-- Connect Four -->
+        <MudItem xs="12" md="3">
+            <MudCard Elevation="3" Class="rounded-xl" Style="height:100%;">
+                <MudCardHeader>
+                    <CardHeaderAvatar>
+                        <MudAvatar Style="background:#1565C0;">
+                            <MudIcon Icon="@Icons.Material.Filled.Album" />
+                        </MudAvatar>
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6" Style="font-family:'Orbitron',sans-serif;">
+                            Connect Four
+                        </MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            vs AI or 2 Players
+                        </MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @if (_cfStats is null || _cfStats.GamesPlayed == 0)
+                    {
+                        <MudText Class="mud-text-secondary" Align="Align.Center">No games played yet.</MudText>
+                    }
+                    else
+                    {
+                        <MudStack Spacing="3">
+                            <StatRow Label="Games Played" Value="@_cfStats.GamesPlayed.ToString()" />
+                            <StatRow Label="Wins" Value="@_cfStats.Wins.ToString()" Color="Color.Success" />
+                            <StatRow Label="Losses" Value="@_cfStats.Losses.ToString()" Color="Color.Error" />
+                            <StatRow Label="Draws" Value="@_cfStats.Draws.ToString()" Color="Color.Warning" />
+                            <StatRow Label="Win Streak" Value="@_cfStats.LongestWinStreak.ToString()" Color="Color.Info" />
+                        </MudStack>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
     </MudGrid>
 
     <!-- Achievements -->
@@ -194,15 +247,15 @@
     <MudGrid Spacing="3">
         @foreach (var achievement in _achievements)
         {
-            <MudItem xs="12" sm="6" md="4">
+            <MudItem xs="12" sm="6" md="3">
                 <MudPaper Elevation="@(achievement.Unlocked ? 3 : 1)"
                           Class="pa-4 rounded-xl"
                           Style="@(achievement.Unlocked
-                                                                            ? "border: 1px solid var(--mud-palette-warning);"
-                                                                            : "opacity: 0.5;")">
+                                                  ? "border: 1px solid var(--mud-palette-warning);"
+                                                  : "opacity: 0.5;")">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
                         <MudText Style="font-size:2rem;">
-                            @(achievement.Unlocked? achievement.Icon: "🔒")
+                            @(achievement.Unlocked ? achievement.Icon : "🔒")
                         </MudText>
                         <MudStack Spacing="0">
                             <MudText Typo="Typo.subtitle2">@achievement.Title</MudText>
