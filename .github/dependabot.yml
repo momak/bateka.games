@@ -1,0 +1,28 @@
+# Weekly update PRs. The Build workflow runs on each one, so a red PR means "don't merge yet".
+version: 2
+
+updates:
+  - package-ecosystem: nuget
+    directories:
+      - "/bateka.games"
+    schedule:
+      interval: weekly
+      day: saturday
+    open-pull-requests-limit: 5
+    groups:
+      # All minor/patch bumps in one PR; a major version gets its own PR to look at.
+      nuget-minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # A new major of these means a new .NET (e.g. 11) — changed by hand together with the
+      # TargetFramework and the Docker images, not by a bot.
+      - dependency-name: "Microsoft.*"
+        update-types: [version-update:semver-major]
+      - dependency-name: "System.*"
+        update-types: [version-update:semver-major]
+
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly

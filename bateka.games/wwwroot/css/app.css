@@ -1,71 +1,156 @@
-html, body {
-    font-family: 'Nunito', sans-serif;
-    margin: 0;
-    padding: 0;
-    height: 100%;
+/* ==========================================================================
+   Bateka games — "arcade purple & teal".
+   Same layout and components as the other Bateka apps (Auth / fit / AI /
+   BillTracker); games has its own colours and faces: deep purple accent (light
+   purple in dark mode), teal secondary, Orbitron for titles, Nunito for reading.
+   Light AND dark: the tokens switch on <html data-theme="…"> (set in index.html).
+   ========================================================================== */
+
+:root {
+    --games-ink: #f5f4f8;
+    --games-surface: #ffffff;
+    --games-raised: #eeecf3;
+    --games-line: #e4e1ec;
+    --games-line-strong: #cfcadb;
+    --games-text: #1a1625;
+    --games-muted: #5e5a6b;
+    --games-faint: #8d889a;
+    --games-accent: #6200ea;
+    --games-accent-soft: rgba(98, 0, 234, 0.09);
+    --games-topbar: rgba(245, 244, 248, 0.86);
+    --games-dots: rgba(94, 90, 107, 0.08);
+
+    /* the logo's own colours — the same in light and dark */
+    --games-brand-purple: #2a1052;
+    --games-brand-teal: #1de9b6;
+
+    --games-font-sans: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --games-font-display: "Orbitron", "Nunito", system-ui, sans-serif;
+    --games-display-tracking: 0.04em;
+
+    --games-radius: 14px;
+    --games-radius-sm: 8px;
+    --games-tabbar-h: 60px; /* the phone's bottom tab bar, without the home-indicator inset */
+
+    color-scheme: light;
 }
 
-#app {
-    height: 100%;
+:root[data-theme="dark"] {
+    --games-ink: #121016;
+    --games-surface: #1c1a22;
+    --games-raised: #24212c;
+    --games-line: #2c2836;
+    --games-line-strong: #3b3647;
+    --games-text: #ece9f3;
+    --games-muted: #a7a1b5;
+    --games-faint: #716b80;
+    --games-accent: #bb86fc;
+    --games-accent-soft: rgba(187, 134, 252, 0.13);
+    --games-topbar: rgba(18, 16, 22, 0.86);
+    --games-dots: rgba(167, 161, 181, 0.06);
+
+    color-scheme: dark;
 }
+
+/* Bateka.UI's shared components read --bateka-*: point them at games' tokens. Declared on :root,
+   so they follow the light/dark switch above. */
+:root {
+    --bateka-surface: var(--games-surface);
+    --bateka-raised: var(--games-raised);
+    --bateka-line: var(--games-line);
+    --bateka-line-strong: var(--games-line-strong);
+    --bateka-text: var(--games-text);
+    --bateka-muted: var(--games-muted);
+    --bateka-faint: var(--games-faint);
+    --bateka-accent: var(--games-accent);
+    --bateka-accent-soft: var(--games-accent-soft);
+
+    --bateka-font-sans: var(--games-font-sans);
+    --bateka-font-display: var(--games-font-display);
+    --bateka-font-mono: var(--games-font-sans);
+    --bateka-display-case: none;
+    --bateka-display-tracking: var(--games-display-tracking);
+
+    --bateka-radius: var(--games-radius);
+    --bateka-radius-sm: var(--games-radius-sm);
+
+    /* the shared shell (top bar, phone tab bar) */
+    --bateka-ink: var(--games-ink);
+    --bateka-topbar: var(--games-topbar);
+    --bateka-tabbar-h: var(--games-tabbar-h);
+    --bateka-brand-size: 1.2rem;
+    --bateka-brand-weight: 700;
+}
+
+html {
+    /* Stops iOS enlarging text when the phone is turned sideways. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+html, body {
+    background: var(--games-ink);
+    color: var(--games-text);
+    font-family: var(--games-font-sans);
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+}
+
+/* The faint dot grid every Bateka app has behind it. */
+body {
+    background-image: radial-gradient(var(--games-dots) 1px, transparent 1px);
+    background-size: 22px 22px;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+h1:focus {
+    outline: none;
+}
+
+a {
+    color: var(--games-accent);
+}
+
+/* ---------- Not found ---------- */
+
+.games-notfound {
+    max-width: 480px;
+    margin: 12vh auto 0;
+}
+
+/* ---------- Blazor's own error UI ---------- */
 
 #blazor-error-ui {
-    background: #ffcc00;
+    background: lightyellow;
+    /* Explicit, so the text stays readable in dark mode (the page text colour is light there). */
+    color: #15202b;
     bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0,0,0,0.2);
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
     display: none;
     left: 0;
-    padding: 0.6rem 1.25rem 0.7rem;
+    padding: 0.6rem 1.25rem calc(0.7rem + env(safe-area-inset-bottom)) 1.25rem;
     position: fixed;
     width: 100%;
+    box-sizing: border-box;
     z-index: 1000;
 }
 
-    #blazor-error-ui .dismiss {
-        cursor: pointer;
-        position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
-    }
-
-/* ── Loading Spinner ── */
-.loading-progress {
-    position: relative;
-    display: block;
-    width: 8rem;
-    height: 8rem;
-    margin: 30vh auto 1rem;
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
 }
 
-    .loading-progress circle {
-        fill: none;
-        stroke: #6200EA;
-        stroke-width: 0.6rem;
-        transform-origin: 50% 50%;
-        transform: rotate(-90deg);
-    }
-
-        .loading-progress circle:last-child {
-            stroke: #6200EA33;
-            stroke-dasharray: 1px 200px;
-            stroke-dashoffset: 0;
-            animation: loading-spin 1.5s linear infinite;
-        }
-
-.loading-progress-text {
-    text-align: center;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.8rem;
-    letter-spacing: 3px;
-    color: #6200EA;
+#blazor-error-ui .reload {
+    color: var(--games-accent);
+    margin-left: 0.5rem;
 }
 
-    .loading-progress-text::after {
-        content: "LOADING...";
-    }
-
-@keyframes loading-spin {
-    100% {
-        transform: rotate(270deg);
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
     }
 }

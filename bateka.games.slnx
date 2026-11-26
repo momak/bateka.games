@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="bateka.games/bateka.games.csproj" />
+  <Folder Name="/src/">
+    <Project Path="bateka.games/bateka.games.csproj" />
+  </Folder>
 </Solution>

@@ -1,29 +1,12 @@
-﻿@layout MainLayout
-@page "/{*path}"
+@page "/not-found"
+@layout MainLayout
 
-<PageTitle>Bateka.Games | 404 - Not Found</PageTitle>
+<PageTitle>Not found · Bateka games</PageTitle>
 
-<MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="4" Class="mt-16">
-
-    <MudText Typo="Typo.h1" Color="Color.Primary" 
-             Style="font-family: 'Orbitron', sans-serif; font-size: 6rem; line-height:1;">
-        404
-    </MudText>
-
-    <MudText Typo="Typo.h5" Class="mud-text-secondary">
-        Oops — that page doesn't exist.
-    </MudText>
-
-    <MudText Typo="Typo.body1" Align="Align.Center" Class="mud-text-secondary" Style="max-width:400px;">
-        Looks like you wandered off the map. Head back home and pick a game.
-    </MudText>
-
-    <MudButton Variant="Variant.Filled"
-               Color="Color.Primary"
-               Size="Size.Large"
-               StartIcon="@Icons.Material.Filled.Home"
-               OnClick="@(() => Nav.NavigateTo(""))">
-        Back to Home
+<div class="games-notfound">
+    <PageHeader Eyebrow="404" Title="Nothing here" Subtitle="Looks like you wandered off the map. Head back and pick a game." />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="bateka-btn-pill" DropShadow="false"
+               StartIcon="@Icons.Material.Outlined.Home" Href="@PageRoutes.Home">
+        Back to games
     </MudButton>
-
-</MudStack>
+</div>

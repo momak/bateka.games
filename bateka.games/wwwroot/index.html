@@ -1,68 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bateka | Games</title>
+    <!-- viewport-fit=cover lets the page run under the iPhone notch / home bar; the layout pads
+         itself with env(safe-area-inset-*) so nothing ends up hidden behind them. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="games" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>Bateka games</title>
     <base href="/" />
-    <!-- decode script -->
-    <script>
-        (function (l) {
-            if (l.search[1] === '/') {
-                var decoded = l.search.slice(1).split('&').map(function (s) {
-                    return s.replace(/~and~/g, '&');
-                }).join('?');
-                window.history.replaceState(null, null,
-                    '/bateka.games' + decoded
-                );
-            }
-        }(window.location))
-    </script>
-    <!-- decode script -->
     <link rel="preload" id="webassembly" />
-    <!-- MudBlazor -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Nunito:wght@400;600;700&display=swap"
-        rel="stylesheet" />
-    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
-    <!-- MudBlazor -->
-    <!-- App CSS -->
-    <link rel="stylesheet" href="css/app.css" />
-    <!-- App CSS -->
 
+    <!-- favicon.png, not favicon.ico: Bateka.BFF serves its OWN favicon.ico for every host before proxying. -->
     <link rel="icon" type="image/png" href="favicon.png" />
-    <link href="bateka.games.styles.css" rel="stylesheet" />
-    <link href="manifest.webmanifest" rel="manifest" />
-    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
     <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
-    <script type="importmap"></script>
-</head>
+    <!-- "Add to Home Screen" installs a real app (own window, no Safari bars). use-credentials:
+         browsers fetch manifests without cookies, so the BFF's login gate would answer 401 (same fix as BillTracker). -->
+    <link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials" />
+    <!-- One theme-color, set by the script below so the Safari bar matches the chosen theme. -->
+    <meta name="theme-color" id="theme-color" content="#f5f4f8" />
 
+    <!-- games' own faces: Orbitron for titles, Nunito for reading. Layout and components are the
+         same as the other Bateka apps. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- MudBlazor first, then the shared Bateka.UI tokens and classes, then ours (ours wins, and sets
+         the --bateka-* tokens to games' colours), then every *.razor.css bundled by the build. -->
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="_content/Bateka.UI/bateka-ui.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="bateka.games.styles.css" rel="stylesheet" />
+    <script type="importmap"></script>
+
+    <!-- Picks light/dark BEFORE the first paint (no white flash on a dark phone).
+         Order: what the user chose with the toggle, else the device setting.
+         The shell talks to this through ThemeService (batekaTheme.isDark / batekaTheme.set).
+         Same script as the other Bateka apps, own storage key. -->
+    <script>
+        window.batekaTheme = (function () {
+            var key = 'bateka-games-dark-mode';
+            var colors = { light: '#f5f4f8', dark: '#121016' };
+
+            function stored() {
+                try {
+                    var v = localStorage.getItem(key);
+                    return v === null ? null : v.toLowerCase() === 'true';
+                } catch (e) { return null; }
+            }
+
+            function apply(isDark) {
+                var mode = isDark ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', mode);
+                var meta = document.getElementById('theme-color');
+                if (meta) meta.setAttribute('content', colors[mode]);
+            }
+
+            var initial = stored();
+            if (initial === null) initial = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            apply(initial);
+
+            return {
+                isDark: function () { return document.documentElement.getAttribute('data-theme') === 'dark'; },
+                set: function (isDark) {
+                    apply(isDark);
+                    try { localStorage.setItem(key, String(isDark)); } catch (e) { /* private mode: just don't remember */ }
+                }
+            };
+        })();
+    </script>
+
+    <!-- Loading screen styles are inline on purpose: they must paint before any CSS file arrives.
+         Same look as the other Bateka boot screens; colour follows data-theme set just above. -->
+    <style>
+        :root { --boot-paper:#f5f4f8; --boot-ink:#1a1625; --boot-muted:#5e5a6b; --boot-line:#e4e1ec; --boot-accent:#6200ea; }
+        :root[data-theme="dark"] { --boot-paper:#121016; --boot-ink:#ece9f3; --boot-muted:#a7a1b5; --boot-line:#2c2836; --boot-accent:#bb86fc; }
+        html { background:var(--boot-paper); }
+        .boot { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+                gap:1.25rem; background:var(--boot-paper); color:var(--boot-muted);
+                font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif; }
+        .boot__mark { font-family:'Orbitron','Nunito',system-ui,sans-serif; font-size:1.5rem; letter-spacing:.08em; color:var(--boot-ink); }
+        .boot__bar { width:8rem; height:2px; overflow:hidden; background:var(--boot-line); }
+        .boot__bar span { display:block; width:40%; height:100%; background:var(--boot-accent); animation:boot-slide 1.1s ease-in-out infinite; }
+        @keyframes boot-slide { 0% { transform:translateX(-100%); } 100% { transform:translateX(350%); } }
+        @media (prefers-reduced-motion: reduce) { .boot__bar span { animation:none; width:100%; } }
+    </style>
+</head>
 <body>
     <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+        <div class="boot">
+            <div class="boot__mark">Bateka games</div>
+            <div class="boot__bar"><span></span></div>
+        </div>
     </div>
 
     <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="." class="reload">Reload</a>
-        <span class="dismiss">🗙</span>
+        Something went wrong. Reload to carry on.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">&times;</a>
     </div>
 
-    <!-- MudBlazor JS -->
+    <!-- Snake's canvas drawing; becomes a JS module (no globals, no eval) in the engines increment. -->
     <script src="js/snake.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
-    <!-- MudBlazor JS -->
-    <!-- inject webassembly -->
+    <!-- Bateka.UI: PageInterop helpers (batekaUi) and the service worker + "new version" detection
+         for the update banner (batekaUpdates). Before Blazor, so an update found early isn't missed. -->
+    <script src="_content/Bateka.UI/bateka-ui.js"></script>
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
-    <!-- inject webassembly -->
-
-    <script>navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' });</script>
 </body>
-
 </html>

@@ -1,0 +1,42 @@
+name: Build
+
+# Every push (any branch) and manual runs from the Actions tab: compile the solution.
+# The Docker images (ghcr.io/momak/bateka-games-api / -client) join in the backend increment.
+# The old GitHub Pages deploy (main.yml) is gone on purpose: the gh-pages branch stays frozen.
+on:
+  push:
+  workflow_dispatch:
+
+# A newer push to the same branch cancels the older, still-running build.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SOLUTION: bateka.games.slnx
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read # restore Bateka.UI from GitHub Packages
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 11.0.x
+
+      # nuget.config names the "github" source; NuGet reads its credentials from this variable.
+      - name: Restore
+        run: dotnet restore "$SOLUTION"
+        env:
+          NuGetPackageSourceCredentials_github: Username=${{ github.actor }};Password=${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build
+        run: dotnet build "$SOLUTION" --no-restore --configuration Release
