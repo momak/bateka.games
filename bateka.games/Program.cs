@@ -10,6 +10,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // Same shape as fit: each concern registers itself.
 builder.Services
+    .AddGamesApiClients(builder.Configuration, builder.HostEnvironment.BaseAddress)
     .AddGamesUi(builder.HostEnvironment.BaseAddress);
 
 await builder.Build().RunAsync();

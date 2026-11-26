@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The repository layer: EF Core implementations of the interfaces in bateka.games.Services. -->
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\bateka.games.Data\bateka.games.Data.csproj" />
+    <ProjectReference Include="..\bateka.games.Services\bateka.games.Services.csproj" />
+  </ItemGroup>
+
+</Project>

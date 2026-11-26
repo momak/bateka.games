@@ -21,6 +21,8 @@
 	<ItemGroup>
 		<!-- The games' rules and computer opponents (plain C#, unit-tested). -->
 		<ProjectReference Include="..\bateka.games.Engine\bateka.games.Engine.csproj" />
+		<!-- Contracts shared with the API (requests, stats, JSON shape). -->
+		<ProjectReference Include="..\bateka.games.Shared\bateka.games.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

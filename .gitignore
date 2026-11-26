@@ -361,3 +361,13 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# ---------------------------------------------------------------------------
+# bateka.games-specific
+# ---------------------------------------------------------------------------
+
+# Docker env file — holds GAMES_API_KEY and the shared POSTGRES_* login.
+# .env.example is the committed template.
+.env
+
+# The API's development log files
+bateka.games.Api/logs/

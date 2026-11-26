@@ -5,6 +5,15 @@ updates:
   - package-ecosystem: nuget
     directories:
       - "/bateka.games"
+      - "/bateka.games.Api"
+      - "/bateka.games.Shared"
+      - "/bateka.games.Domain"
+      - "/bateka.games.Data"
+      - "/bateka.games.Services"
+      - "/bateka.games.Repositories"
+      - "/bateka.games.Engine"
+      - "/bateka.games.Engine.Tests"
+      - "/bateka.games.Services.Tests"
     schedule:
       interval: weekly
       day: saturday
@@ -21,6 +30,17 @@ updates:
       - dependency-name: "System.*"
         update-types: [version-update:semver-major]
 
+  - package-ecosystem: docker
+    directories:
+      - "/bateka.games"
+      - "/bateka.games.Api"
+    schedule:
+      interval: weekly
+      day: saturday
+    ignore:
+      # Same reason: sdk:10.0 -> 11.0 is a .NET upgrade, not a routine bump.
+      - dependency-name: "*"
+        update-types: [version-update:semver-major]
 
   - package-ecosystem: github-actions
     directory: "/"

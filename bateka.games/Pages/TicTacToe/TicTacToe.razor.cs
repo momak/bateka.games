@@ -1,26 +1,31 @@
-using bateka.games.Engine;
+﻿using bateka.games.Engine;
 using bateka.games.Engine.TicTacToe;
-using bateka.games.Stats;
+using bateka.games.Presentation;
+using bateka.games.Services;
+using bateka.games.Shared.Contracts.Stats;
+using Bateka.UI.Components.Common;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
 namespace bateka.games.Pages.TicTacToe;
 
 /// <summary>Tic Tac Toe's page: you are X against the computer. The rules and AI are in <see cref="TicTacToeGame"/>.</summary>
-public partial class TicTacToe : ComponentBase
+public partial class TicTacToe : BusyComponentBase
 {
     /// <summary>A short pause before the computer answers, so its move doesn't look instant.</summary>
     private const int ThinkingMs = 300;
     private const int HardThinkingMs = 400;
 
-    [Inject] private LocalStatsStore StatsStore { get; set; } = default!;
+    [Inject] private StatsApiClient StatsApi { get; set; } = default!;
+    [Inject] private ResultsApiClient ResultsApi { get; set; } = default!;
 
     private readonly TicTacToeGame _game = new(new TicTacToeAi(Random.Shared));
 
     private Difficulty _difficulty = Difficulty.Hard;
     private bool _isAiThinking;
 
-    private TicTacToeStats Stats { get; set; } = new();
+    /// <summary>Null while loading (the stats bar shows a skeleton).</summary>
+    private TicTacToeStatsDto? Stats { get; set; }
 
     private IReadOnlyList<CellState> Board => _game.Board;
 
@@ -53,7 +58,8 @@ public partial class TicTacToe : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        Stats = await StatsStore.LoadAsync<TicTacToeStats>(StatsKeys.TicTacToe);
+        var mine = await LoadAsync(() => StatsApi.GetMineAsync());
+        Stats = mine?.TicTacToe ?? TicTacToeStatsDto.Empty;
     }
 
     private async Task OnCellClickAsync(int index)
@@ -73,8 +79,11 @@ public partial class TicTacToe : ComponentBase
 
         if (_game.IsOver)
         {
-            Stats.Record(_game.Result, _game.Moves);
-            await StatsStore.SaveAsync(StatsKeys.TicTacToe, Stats);
+            await RunAsync(async () =>
+            {
+                var response = await ResultsApi.RecordAsync(ResultRequests.ForTicTacToe(_game, _difficulty));
+                Stats = response.Stats.TicTacToe;
+            });
         }
     }
 
@@ -82,11 +91,5 @@ public partial class TicTacToe : ComponentBase
     {
         _game.Reset();
         _isAiThinking = false;
-    }
-
-    private async Task ResetStatsAsync()
-    {
-        Stats = new TicTacToeStats();
-        await StatsStore.SaveAsync(StatsKeys.TicTacToe, Stats);
     }
 }

@@ -1,6 +1,9 @@
-using bateka.games.Engine;
+﻿using bateka.games.Engine;
 using bateka.games.Engine.ConnectFour;
-using bateka.games.Stats;
+using bateka.games.Presentation;
+using bateka.games.Services;
+using bateka.games.Shared.Contracts.Stats;
+using Bateka.UI.Components.Common;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -10,7 +13,7 @@ namespace bateka.games.Pages.ConnectFour;
 /// Connect Four's page: you (Red) against the computer or a second player on the same device. The
 /// rules and AI are in <see cref="ConnectFourGame"/>; only games against the computer are counted.
 /// </summary>
-public partial class ConnectFour : ComponentBase
+public partial class ConnectFour : BusyComponentBase
 {
     /// <summary>A short pause before the computer drops its disc.</summary>
     private const int AiThinkingMs = 400;
@@ -18,7 +21,8 @@ public partial class ConnectFour : ComponentBase
     private const string RedClass = "red";
     private const string YellowClass = "yellow";
 
-    [Inject] private LocalStatsStore StatsStore { get; set; } = default!;
+    [Inject] private StatsApiClient StatsApi { get; set; } = default!;
+    [Inject] private ResultsApiClient ResultsApi { get; set; } = default!;
 
     private readonly ConnectFourGame _game = new(new ConnectFourAi(Random.Shared));
 
@@ -27,7 +31,8 @@ public partial class ConnectFour : ComponentBase
     private bool _playing;
     private int? _hoverColumn;
 
-    private ConnectFourStats Stats { get; set; } = new();
+    /// <summary>Null while loading (the stats bar shows a skeleton).</summary>
+    private ConnectFourStatsDto? Stats { get; set; }
 
     private static int Rows => ConnectFourBoard.Rows;
 
@@ -68,7 +73,8 @@ public partial class ConnectFour : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        Stats = await StatsStore.LoadAsync<ConnectFourStats>(StatsKeys.ConnectFour);
+        var mine = await LoadAsync(() => StatsApi.GetMineAsync());
+        Stats = mine?.ConnectFour ?? ConnectFourStatsDto.Empty;
     }
 
     private void StartGame()
@@ -93,14 +99,11 @@ public partial class ConnectFour : ComponentBase
 
         if (_game.IsOver && _game.Mode == ConnectFourMode.VersusAi)
         {
-            Stats.Record(_game.Result);
-            await StatsStore.SaveAsync(StatsKeys.ConnectFour, Stats);
+            await RunAsync(async () =>
+            {
+                var response = await ResultsApi.RecordAsync(ResultRequests.ForConnectFour(_game));
+                Stats = response.Stats.ConnectFour;
+            });
         }
-    }
-
-    private async Task ResetStatsAsync()
-    {
-        Stats = new ConnectFourStats();
-        await StatsStore.SaveAsync(StatsKeys.ConnectFour, Stats);
     }
 }

@@ -1,5 +1,8 @@
-using bateka.games.Engine.Memory;
-using bateka.games.Stats;
+﻿using bateka.games.Engine.Memory;
+using bateka.games.Presentation;
+using bateka.games.Services;
+using bateka.games.Shared.Contracts.Stats;
+using Bateka.UI.Components.Common;
 using Microsoft.AspNetCore.Components;
 
 namespace bateka.games.Pages.Memory;
@@ -9,11 +12,12 @@ namespace bateka.games.Pages.Memory;
 /// so you can see a pair before it's resolved. (Named MemoryMatch so it doesn't clash with the
 /// engine's MemoryGame.)
 /// </summary>
-public partial class MemoryMatch : ComponentBase, IDisposable
+public partial class MemoryMatch : BusyComponentBase, IDisposable
 {
     private static readonly TimeSpan ClockTick = TimeSpan.FromSeconds(1);
 
-    [Inject] private LocalStatsStore StatsStore { get; set; } = default!;
+    [Inject] private StatsApiClient StatsApi { get; set; } = default!;
+    [Inject] private ResultsApiClient ResultsApi { get; set; } = default!;
 
     private readonly MemoryGame _game = new(Random.Shared);
 
@@ -26,7 +30,8 @@ public partial class MemoryMatch : ComponentBase, IDisposable
     private PeriodicTimer? _clock;
     private CancellationTokenSource? _clockLoop;
 
-    private MemoryStats Stats { get; set; } = new();
+    /// <summary>Null while loading (the stats bar shows a skeleton).</summary>
+    private MemoryStatsDto? Stats { get; set; }
 
     private static IReadOnlyList<int> AvailableSizes => MemoryRules.Sizes;
 
@@ -34,7 +39,8 @@ public partial class MemoryMatch : ComponentBase, IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        Stats = await StatsStore.LoadAsync<MemoryStats>(StatsKeys.Memory);
+        var mine = await LoadAsync(() => StatsApi.GetMineAsync());
+        Stats = mine?.Memory ?? MemoryStatsDto.Empty;
     }
 
     // ── Setup ────────────────────────────────────────────────
@@ -75,9 +81,14 @@ public partial class MemoryMatch : ComponentBase, IDisposable
     private async Task OnGameWonAsync()
     {
         StopClock();
-        _isNewBest = Stats.Record(_game.Pairs, _game.Moves, _elapsedSeconds);
-        await StatsStore.SaveAsync(StatsKeys.Memory, Stats);
         _showWinDialog = true;
+
+        await RunAsync(async () =>
+        {
+            var response = await ResultsApi.RecordAsync(ResultRequests.ForMemory(_game, _elapsedSeconds));
+            Stats = response.Stats.Memory;
+            _isNewBest = response.IsPersonalBest;
+        });
     }
 
     // ── Clock ────────────────────────────────────────────────

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- Contracts and validators used by both bateka.games (client) and bateka.games.Api. They use the
+       engine's own types and limits (Difficulty, MemoryRules, SnakeRules), so the API can't accept a
+       result the games could never produce. -->
+  <ItemGroup>
+    <ProjectReference Include="..\bateka.games.Engine\bateka.games.Engine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.2.0" />
+  </ItemGroup>
+
+</Project>

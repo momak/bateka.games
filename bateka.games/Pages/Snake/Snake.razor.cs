@@ -1,6 +1,9 @@
 ﻿using bateka.games.Engine.Snake;
 using bateka.games.Interop;
-using bateka.games.Stats;
+using bateka.games.Presentation;
+using bateka.games.Services;
+using bateka.games.Shared.Contracts.Stats;
+using Bateka.UI.Components.Common;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
@@ -8,15 +11,16 @@ namespace bateka.games.Pages.Snake;
 
 /// <summary>
 /// Snake's page: draws <see cref="SnakeGame"/> on a canvas and runs its clock. The rules are all in
-/// the engine; this only steps it, redraws and saves the stats when the snake crashes.
+/// the engine; this only steps it, redraws and sends the result to the API when the snake crashes.
 /// </summary>
-public partial class Snake : ComponentBase, IAsyncDisposable
+public partial class Snake : BusyComponentBase, IAsyncDisposable
 {
     /// <summary>Pixels per cell on the canvas (CSS scales it down on small screens).</summary>
     private const int CellSize = 24;
 
     [Inject] private SnakeCanvas Canvas { get; set; } = default!;
-    [Inject] private LocalStatsStore StatsStore { get; set; } = default!;
+    [Inject] private StatsApiClient StatsApi { get; set; } = default!;
+    [Inject] private ResultsApiClient ResultsApi { get; set; } = default!;
 
     private readonly SnakeGame _game = new(Random.Shared);
 
@@ -30,7 +34,8 @@ public partial class Snake : ComponentBase, IAsyncDisposable
     private bool _isNewHighScore;
     private bool _showDPad;
 
-    private SnakeStats Stats { get; set; } = new();
+    /// <summary>Null while loading (the stats bar shows a skeleton).</summary>
+    private SnakeStatsDto? Stats { get; set; }
 
     private static int CanvasSize => SnakeRules.GridSize * CellSize;
 
@@ -38,7 +43,8 @@ public partial class Snake : ComponentBase, IAsyncDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        Stats = await StatsStore.LoadAsync<SnakeStats>(StatsKeys.Snake);
+        var mine = await LoadAsync(() => StatsApi.GetMineAsync());
+        Stats = mine?.Snake ?? SnakeStatsDto.Empty;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -149,25 +155,19 @@ public partial class Snake : ComponentBase, IAsyncDisposable
         StateHasChanged();
     }
 
-    private async Task EndGameAsync()
-    {
-        _isNewHighScore = Stats.Record(_game.Score, _game.Length);
-        await StatsStore.SaveAsync(StatsKeys.Snake, Stats);
-    }
+    private Task EndGameAsync() =>
+        RunAsync(async () =>
+        {
+            var response = await ResultsApi.RecordAsync(ResultRequests.ForSnake(_game));
+            Stats = response.Stats.Snake;
+            _isNewHighScore = response.IsPersonalBest;
+        });
 
     // ── Drawing ──────────────────────────────────────────────
 
     private Task DrawAsync() =>
         Canvas.DrawAsync(_canvasRef, new SnakeFrame(
             SnakeRules.GridSize, CellSize, _game.Body, _game.Food, _game.Head, _game.IsOver));
-
-    // ── Stats ────────────────────────────────────────────────
-
-    private async Task ResetStatsAsync()
-    {
-        Stats = new SnakeStats();
-        await StatsStore.SaveAsync(StatsKeys.Snake, Stats);
-    }
 
     public ValueTask DisposeAsync()
     {

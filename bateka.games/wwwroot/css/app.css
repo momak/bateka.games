@@ -112,6 +112,14 @@ a {
     color: var(--games-accent);
 }
 
+/* ---------- Loading ---------- */
+
+/* The stats bar's skeleton: as wide as the bar it stands in for. */
+.games-stats-skeleton {
+    width: 100%;
+    max-width: 560px;
+}
+
 /* ---------- Not found ---------- */
 
 .games-notfound {

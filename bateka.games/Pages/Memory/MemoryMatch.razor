@@ -1,4 +1,5 @@
 ﻿@page "/game/memory"
+@inherits BusyComponentBase
 @using bateka.games.Engine.Memory
 @implements IDisposable
 
@@ -11,33 +12,42 @@
     </MudText>
 
     <!-- Stats -->
-    <MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:600px;">
-        <MudText Typo="Typo.overline" Class="mud-text-secondary" Align="Align.Center">Best Scores</MudText>
-        <MudGrid Justify="Justify.Center" Spacing="2" Class="mt-1">
-            @foreach (var size in AvailableSizes)
-            {
-                var best = Stats.Best(size);
-                <MudItem xs="6" sm="3">
-                    <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@size pairs</MudText>
-                        <MudText Typo="Typo.body2" Color="Color.Primary">
-                            @(best == null ? "—" : $"{best.Moves} moves")
-                        </MudText>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                            @(best == null ? "—" : TimeFormat.MinutesSeconds(best.BestTime))
-                        </MudText>
-                    </MudStack>
-                </MudItem>
-            }
-        </MudGrid>
-        <MudDivider Class="my-2" />
-        <MudStack Row="true" Justify="Justify.Center" Spacing="4">
-            <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                <MudText Typo="Typo.h6">@Stats.GamesPlayed</MudText>
-                <MudText Typo="Typo.caption" Class="mud-text-secondary">Games Played</MudText>
+    @if (Stats is null)
+    {
+        <div class="games-stats-skeleton">
+            <CardSkeleton Count="4" Height="64px" MinWidth="72px" Label="Loading your stats" />
+        </div>
+    }
+    else
+    {
+        <MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:600px;">
+            <MudText Typo="Typo.overline" Class="mud-text-secondary" Align="Align.Center">Best Scores</MudText>
+            <MudGrid Justify="Justify.Center" Spacing="2" Class="mt-1">
+                @foreach (var size in AvailableSizes)
+                {
+                    var best = Stats.Best(size);
+                    <MudItem xs="6" sm="3">
+                        <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">@size pairs</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Primary">
+                                @(best == null ? "—" : $"{best.Moves} moves")
+                            </MudText>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                @(best == null ? "—" : TimeFormat.MinutesSeconds(best.BestSeconds))
+                            </MudText>
+                        </MudStack>
+                    </MudItem>
+                }
+            </MudGrid>
+            <MudDivider Class="my-2" />
+            <MudStack Row="true" Justify="Justify.Center" Spacing="4">
+                <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                    <MudText Typo="Typo.h6">@Stats.GamesPlayed</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Games Played</MudText>
+                </MudStack>
             </MudStack>
-        </MudStack>
-    </MudPaper>
+        </MudPaper>
+    }
 
     <!-- Setup / In-Game Header -->
     @if (!_playing)

@@ -1,4 +1,5 @@
 ﻿@page "/game/connectfour"
+@inherits BusyComponentBase
 @using bateka.games.Engine
 @using bateka.games.Engine.ConnectFour
 
@@ -10,40 +11,49 @@
         Connect Four
     </MudText>
 
-    <MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:560px;">
-        <MudGrid Justify="Justify.Center" Spacing="2">
-            <MudItem xs="2">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudText Typo="Typo.h6">@Stats.GamesPlayed</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Played</MudText>
-                </MudStack>
-            </MudItem>
-            <MudItem xs="2">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudText Typo="Typo.h6" Color="Color.Success">@Stats.Wins</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Wins</MudText>
-                </MudStack>
-            </MudItem>
-            <MudItem xs="2">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudText Typo="Typo.h6" Color="Color.Error">@Stats.Losses</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Losses</MudText>
-                </MudStack>
-            </MudItem>
-            <MudItem xs="2">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudText Typo="Typo.h6" Color="Color.Warning">@Stats.Draws</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Draws</MudText>
-                </MudStack>
-            </MudItem>
-            <MudItem xs="2">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudText Typo="Typo.h6" Color="Color.Info">@Stats.LongestWinStreak</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Streak</MudText>
-                </MudStack>
-            </MudItem>
-        </MudGrid>
-    </MudPaper>
+    @if (Stats is null)
+    {
+        <div class="games-stats-skeleton">
+            <CardSkeleton Count="4" Height="64px" MinWidth="72px" Label="Loading your stats" />
+        </div>
+    }
+    else
+    {
+        <MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:560px;">
+            <MudGrid Justify="Justify.Center" Spacing="2">
+                <MudItem xs="2">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                        <MudText Typo="Typo.h6">@Stats.GamesPlayed</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Played</MudText>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="2">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                        <MudText Typo="Typo.h6" Color="Color.Success">@Stats.Wins</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Wins</MudText>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="2">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                        <MudText Typo="Typo.h6" Color="Color.Error">@Stats.Losses</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Losses</MudText>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="2">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                        <MudText Typo="Typo.h6" Color="Color.Warning">@Stats.Draws</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Draws</MudText>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="2">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                        <MudText Typo="Typo.h6" Color="Color.Info">@Stats.LongestWinStreak</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Streak</MudText>
+                    </MudStack>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    }
 
     @if (!_playing)
     {
@@ -136,11 +146,6 @@
                        StartIcon="@Icons.Material.Filled.ArrowBack"
                        OnClick="BackToSetup">
                 Change Mode
-            </MudButton>
-            <MudButton Variant="Variant.Outlined" Color="Color.Error"
-                       StartIcon="@Icons.Material.Filled.DeleteForever"
-                       OnClick="ResetStatsAsync">
-                Reset Stats
             </MudButton>
         </MudStack>
     }

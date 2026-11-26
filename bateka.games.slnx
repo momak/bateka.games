@@ -1,9 +1,16 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="bateka.games/bateka.games.csproj" />
+    <Project Path="bateka.games.Api/bateka.games.Api.csproj" />
+    <Project Path="bateka.games.Services/bateka.games.Services.csproj" />
+    <Project Path="bateka.games.Repositories/bateka.games.Repositories.csproj" />
+    <Project Path="bateka.games.Data/bateka.games.Data.csproj" />
+    <Project Path="bateka.games.Domain/bateka.games.Domain.csproj" />
+    <Project Path="bateka.games.Shared/bateka.games.Shared.csproj" />
     <Project Path="bateka.games.Engine/bateka.games.Engine.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="bateka.games.Engine.Tests/bateka.games.Engine.Tests.csproj" />
+    <Project Path="bateka.games.Services.Tests/bateka.games.Services.Tests.csproj" />
   </Folder>
 </Solution>

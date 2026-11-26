@@ -1,0 +1,67 @@
+# Bateka games on the NAS — runs the images GitHub Actions builds (.github/workflows/build.yml).
+# No source code on the NAS: push to main → new :latest on ghcr.io → Watchtower
+# (C:\Repos\docker\watchtower) pulls it within ~5 minutes and recreates the labelled containers.
+#
+# On the NAS: folder docker/bateka-games with this file + the .env, project "bateka-games" in the
+# Ugreen Docker app. Container names games-api / games-client — Bateka.BFF addresses them by name.
+# The only compose file for games (no separate local-build compose): run and debug locally from Visual Studio.
+# A change to this file needs a project redeploy in the Ugreen app (Watchtower only swaps images).
+#
+# Roll back: replace :latest with an older :sha-xxxxxxx (Packages tab on GitHub) and redeploy.
+# Watchtower leaves a pinned tag alone until you put :latest back.
+#
+# Behind Bateka.BFF, like fit: games.bateka.dpdns.org/api/** goes to games-api, everything else
+# to games-client. Neither publishes a port; Bateka.BFF reaches both over bateka-net, and the
+# login/access gate (the "games" grant) is the BFF's.
+name: bateka-games
+
+services:
+  games-api:
+    image: ghcr.io/momak/bateka-games-api:latest
+    container_name: games-api
+    labels:
+      # auto-updated by Watchtower (never postgres, redis, cloudflared)
+      com.centurylinklabs.watchtower.enable: "true"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+    environment:
+      # Never the Development settings files on the NAS — everything comes from here.
+      ASPNETCORE_ENVIRONMENT: Production
+      # postgres is the shared instance from the bateka-shared stack — start that first (if it's
+      # still starting, the API exits and restart: unless-stopped brings it back). The database
+      # batekaGames is created on first start by the startup migration.
+      # `:?` makes compose refuse to start with a clear message when a value is missing.
+      # A password containing ; or = would break this connection string.
+      # GSS Encryption Mode=Disable: no Kerberos on bateka-net — stops Npgsql looking for
+      # libgssapi_krb5.so.2 (not in the aspnet image). Same as fit and Bateka.AI.
+      ConnectionStrings__DatabaseConnection: "Host=postgres;Database=batekaGames;Username=${POSTGRES_USER:?set POSTGRES_USER in .env};Password=${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env};GSS Encryption Mode=Disable"
+      # Same value as GAMES_API_KEY in Bateka.BFF's .env (16+ characters). It's what makes the
+      # X-Bateka-User header trustworthy — without it anything on bateka-net could pose as any user.
+      ApiSecurity__ApiKey: "${GAMES_API_KEY:?set GAMES_API_KEY in .env (16+ chars, same value as Bateka.BFF)}"
+    networks:
+      - bateka-net
+
+  games-client:
+    image: ghcr.io/momak/bateka-games-client:latest
+    container_name: games-client
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: "0.25"
+    depends_on:
+      - games-api
+    networks:
+      - bateka-net
+
+networks:
+  bateka-net:
+    name: bateka-net
+    external: true

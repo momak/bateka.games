@@ -1,4 +1,5 @@
 ﻿@page "/game/snake"
+@inherits BusyComponentBase
 @* No @using of bateka.games.Engine.Snake here: its Direction clashes with MudBlazor.Direction. *@
 @implements IAsyncDisposable
 
@@ -11,34 +12,43 @@
     </MudText>
 
     <!-- Stats Bar -->
-    <MudPaper Elevation="2" Class="pa-3 rounded-xl" Style="width:100%; max-width:520px;">
-        <MudGrid Justify="Justify.Center" Spacing="2">
-            <MudItem xs="3">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudText Typo="Typo.h6" Color="Color.Warning">@Stats.HighScore</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">High Score</MudText>
-                </MudStack>
-            </MudItem>
-            <MudItem xs="3">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudText Typo="Typo.h6">@Stats.GamesPlayed</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Games Played</MudText>
-                </MudStack>
-            </MudItem>
-            <MudItem xs="3">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudText Typo="Typo.h6" Color="Color.Success">@Stats.LongestSnake</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Longest</MudText>
-                </MudStack>
-            </MudItem>
-            <MudItem xs="3">
-                <MudStack AlignItems="AlignItems.Center" Spacing="0">
-                    <MudText Typo="Typo.h6" Color="Color.Info">@Stats.AverageScore</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Avg Score</MudText>
-                </MudStack>
-            </MudItem>
-        </MudGrid>
-    </MudPaper>
+    @if (Stats is null)
+    {
+        <div class="games-stats-skeleton">
+            <CardSkeleton Count="4" Height="64px" MinWidth="72px" Label="Loading your stats" />
+        </div>
+    }
+    else
+    {
+        <MudPaper Elevation="2" Class="pa-3 rounded-xl" Style="width:100%; max-width:520px;">
+            <MudGrid Justify="Justify.Center" Spacing="2">
+                <MudItem xs="3">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                        <MudText Typo="Typo.h6" Color="Color.Warning">@Stats.HighScore</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">High Score</MudText>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="3">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                        <MudText Typo="Typo.h6">@Stats.GamesPlayed</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Games Played</MudText>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="3">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                        <MudText Typo="Typo.h6" Color="Color.Success">@Stats.LongestSnake</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Longest</MudText>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="3">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="0">
+                        <MudText Typo="Typo.h6" Color="Color.Info">@Stats.AverageScore</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Avg Score</MudText>
+                    </MudStack>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    }
 
     <!-- In-game HUD -->
     @if (_game.IsStarted)
@@ -106,12 +116,6 @@
                                StartIcon="@Icons.Material.Filled.Replay"
                                OnClick="StartGameAsync">
                         Play Again
-                    </MudButton>
-                    <MudButton Variant="Variant.Outlined"
-                               Style="color:white; border-color:white;"
-                               StartIcon="@Icons.Material.Filled.DeleteForever"
-                               OnClick="ResetStatsAsync">
-                        Reset Stats
                     </MudButton>
                 </MudStack>
             </div>

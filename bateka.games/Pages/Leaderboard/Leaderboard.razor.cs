@@ -1,20 +1,23 @@
-﻿using bateka.games.Stats;
+﻿using bateka.games.Services;
+using bateka.games.Shared.Contracts.Stats;
+using Bateka.UI.Components.Common;
 using Microsoft.AspNetCore.Components;
 
 namespace bateka.games.Pages.Leaderboard;
 
 /// <summary>
-/// Your stats from every game and the achievements they unlock, read from this device. The
-/// competition increment turns this into real leaderboards across Bateka users.
+/// Your stats from every game and the achievements they unlock. The competition increment turns
+/// this into real leaderboards across Bateka users.
 /// </summary>
-public partial class Leaderboard : ComponentBase
+public partial class Leaderboard : BusyComponentBase
 {
-    [Inject] private LocalStatsStore StatsStore { get; set; } = default!;
+    [Inject] private StatsApiClient StatsApi { get; set; } = default!;
 
-    private TicTacToeStats? _tttStats;
-    private MemoryStats? _memoryStats;
-    private SnakeStats? _snakeStats;
-    private ConnectFourStats? _cfStats;
+    private bool _loaded;
+    private TicTacToeStatsDto? _tttStats;
+    private MemoryStatsDto? _memoryStats;
+    private SnakeStatsDto? _snakeStats;
+    private ConnectFourStatsDto? _cfStats;
     private List<Achievement> _achievements = [];
 
     private string _memoryBestLabel =>
@@ -24,11 +27,13 @@ public partial class Leaderboard : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        _tttStats = await StatsStore.LoadAsync<TicTacToeStats>(StatsKeys.TicTacToe);
-        _memoryStats = await StatsStore.LoadAsync<MemoryStats>(StatsKeys.Memory);
-        _snakeStats = await StatsStore.LoadAsync<SnakeStats>(StatsKeys.Snake);
-        _cfStats = await StatsStore.LoadAsync<ConnectFourStats>(StatsKeys.ConnectFour);
+        var mine = await LoadAsync(() => StatsApi.GetMineAsync()) ?? MyStatsDto.Empty;
+        _tttStats = mine.TicTacToe;
+        _memoryStats = mine.Memory;
+        _snakeStats = mine.Snake;
+        _cfStats = mine.ConnectFour;
         BuildAchievements();
+        _loaded = true;
     }
 
     private void BuildAchievements()
@@ -80,7 +85,7 @@ public partial class Leaderboard : ComponentBase
                 Icon = "⏱", Title = "Speed Runner",
                 Description = "Complete a 6-pair game in under 30 seconds.",
                 Unlocked = _memoryStats?.BestScores
-                    .Any(s => s.Pairs == 6 && s.BestTime <= 30) ?? false
+                    .Any(s => s.Pairs == 6 && s.BestSeconds <= 30) ?? false
             },
 
             // Snake

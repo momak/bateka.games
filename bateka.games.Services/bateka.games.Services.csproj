@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The service layer: the app's rules. Talks to storage only through the repository
+       interfaces in Abstractions (implemented in bateka.games.Repositories) — no EF Core here. -->
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\bateka.games.Domain\bateka.games.Domain.csproj" />
+    <ProjectReference Include="..\bateka.games.Shared\bateka.games.Shared.csproj" />
+  </ItemGroup>
+
+</Project>
