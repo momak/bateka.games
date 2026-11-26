@@ -1,6 +1,7 @@
 name: Build
 
-# Every push (any branch) and manual runs from the Actions tab: compile the solution.
+# Every push (any branch) and manual runs from the Actions tab: compile the solution and run the
+# engine tests.
 # The Docker images (ghcr.io/momak/bateka-games-api / -client) join in the backend increment.
 # The old GitHub Pages deploy (main.yml) is gone on purpose: the gh-pages branch stays frozen.
 on:
@@ -40,3 +41,7 @@ jobs:
 
       - name: Build
         run: dotnet build "$SOLUTION" --no-restore --configuration Release
+
+      # global.json picks the Microsoft.Testing.Platform runner (xUnit v3), same as Bateka.AI.
+      - name: Test
+        run: dotnet test --solution "$SOLUTION" --no-build --configuration Release

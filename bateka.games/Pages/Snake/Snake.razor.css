@@ -6,8 +6,12 @@
     box-shadow: 0 4px 24px rgba(0,0,0,0.3);
 }
 
+/* Drawn at 480 × 480; on a phone the CSS shrinks it to the screen (same picture, smaller cells). */
 .snake-canvas {
     display: block;
+    width: min(480px, calc(100vw - 32px));
+    height: auto;
+    aspect-ratio: 1;
     background: #0a0a0a;
 }
 
@@ -28,6 +32,11 @@
     align-items: center;
     gap: 4px;
     margin-top: 8px;
+}
+
+.dpad-gap {
+    width: 48px;
+    height: 48px;
 }
 
 .dpad-row {

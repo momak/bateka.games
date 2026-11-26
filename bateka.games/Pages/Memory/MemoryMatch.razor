@@ -1,7 +1,8 @@
 ﻿@page "/game/memory"
-@layout MainLayout
+@using bateka.games.Engine.Memory
+@implements IDisposable
 
-<PageTitle>Bateka.Games | Memory Match</PageTitle>
+<PageTitle>Memory Match · Bateka games</PageTitle>
 
 <MudStack Spacing="4" AlignItems="AlignItems.Center">
 
@@ -15,7 +16,7 @@
         <MudGrid Justify="Justify.Center" Spacing="2" Class="mt-1">
             @foreach (var size in AvailableSizes)
             {
-                var best = GetBestStat(size);
+                var best = Stats.Best(size);
                 <MudItem xs="6" sm="3">
                     <MudStack AlignItems="AlignItems.Center" Spacing="0">
                         <MudText Typo="Typo.caption" Class="mud-text-secondary">@size pairs</MudText>
@@ -23,7 +24,7 @@
                             @(best == null ? "—" : $"{best.Moves} moves")
                         </MudText>
                         <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                            @(best == null ? "—" : FormatTime(best.BestTime))
+                            @(best == null ? "—" : TimeFormat.MinutesSeconds(best.BestTime))
                         </MudText>
                     </MudStack>
                 </MudItem>
@@ -39,19 +40,19 @@
     </MudPaper>
 
     <!-- Setup / In-Game Header -->
-    @if (!_gameStarted)
+    @if (!_playing)
     {
         <MudPaper Elevation="2" Class="pa-6 rounded-xl" Style="max-width:400px; width:100%;">
             <MudStack Spacing="4" AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.h6">Choose Number of Pairs</MudText>
                 <MudSlider @bind-Value="_selectedPairs"
-                           Min="3" Max="8" Step="1"
+                           Min="MemoryRules.MinPairs" Max="MemoryRules.MaxPairs" Step="1"
                            Color="Color.Primary"
                            Style="width:100%;">
                     @_selectedPairs Pairs (@(_selectedPairs * 2) cards)
                 </MudSlider>
                 <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                    Grid: @GetGridDimensions(_selectedPairs)
+                    Grid: @GridText(_selectedPairs)
                 </MudText>
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Primary"
@@ -69,27 +70,27 @@
         <!--In - Game Status-->
         <MudStack Row="true" Spacing="4" AlignItems="AlignItems.Center" Justify="Justify.Center">
             <MudChip T="string" Color="Color.Primary" Icon="@Icons.Material.Filled.TouchApp">
-                Moves: @_moves
+                Moves: @_game.Moves
             </MudChip>
             <MudChip T="string" Color="Color.Secondary" Icon="@Icons.Material.Filled.Timer">
-                @FormatTime(_elapsed)
+                @TimeFormat.MinutesSeconds(_elapsedSeconds)
             </MudChip>
             <MudChip T="string" Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle">
-                @_matchesFound / @_selectedPairs matched
+                @_game.MatchesFound / @_game.Pairs matched
             </MudChip>
         </MudStack>
 
         <!--Board-->
-        <div class="memory-board" style="@GetGridStyle()">
-            @for (int i = 0; i < _cards.Count; i++)
+        <div class="memory-board" style="@GridStyle">
+            @for (int i = 0; i < _game.Cards.Count; i++)
             {
-                var card = _cards[i];
+                var card = _game.Cards[i];
                 var idx = i;
-                <div class="card-wrapper @(card.IsFlipped || card.IsMatched ? "flipped" : "") @(card.IsMatched ? "matched" : "")"
-                     @onclick="() => OnCardClick(idx)">
+                <div class="card-wrapper @(card.IsShown ? "flipped" : "") @(card.IsMatched ? "matched" : "")"
+                     @onclick="() => OnCardClickAsync(idx)">
                     <div class="card-inner">
                         <div class="card-front">?</div>
-                        <div class="card-back">@card.Emoji</div>
+                        <div class="card-back">@card.Face</div>
                     </div>
                 </div>
             }
@@ -100,7 +101,7 @@
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        StartIcon="@Icons.Material.Filled.Replay"
-                       OnClick="RestartGame">
+                       OnClick="StartGame">
                 Restart
             </MudButton>
             <MudButton Variant="Variant.Outlined"
@@ -119,9 +120,9 @@
         </TitleContent>
         <DialogContent>
             <MudStack Spacing="2" AlignItems="AlignItems.Center">
-                <MudText>@_selectedPairs pairs matched!</MudText>
-                <MudText>Moves: <strong>@_moves</strong></MudText>
-                <MudText>Time: <strong>@FormatTime(_elapsed)</strong></MudText>
+                <MudText>@_game.Pairs pairs matched!</MudText>
+                <MudText>Moves: <strong>@_game.Moves</strong></MudText>
+                <MudText>Time: <strong>@TimeFormat.MinutesSeconds(_elapsedSeconds)</strong></MudText>
                 @if (_isNewBest)
                 {
                     <MudChip T="string" Color="Color.Warning" Icon="@Icons.Material.Filled.EmojiEvents">
@@ -131,7 +132,7 @@
             </MudStack>
         </DialogContent>
         <DialogActions>
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="RestartGame">Play Again</MudButton>
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="StartGame">Play Again</MudButton>
             <MudButton Color="Color.Default" Variant="Variant.Outlined" OnClick="BackToSetup">Change Size</MudButton>
         </DialogActions>
     </MudDialog>

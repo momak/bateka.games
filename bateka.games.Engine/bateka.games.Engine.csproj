@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<!-- The games themselves: rules, scoring and the computer opponents. Plain C#, no UI, no I/O,
+	     so every rule is unit-tested (bateka.games.Engine.Tests) and the pages only draw and click. -->
+	<PropertyGroup>
+		<TargetFramework>net11.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+</Project>

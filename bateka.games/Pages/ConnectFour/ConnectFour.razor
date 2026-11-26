@@ -1,7 +1,8 @@
 ﻿@page "/game/connectfour"
-@layout MainLayout
+@using bateka.games.Engine
+@using bateka.games.Engine.ConnectFour
 
-<PageTitle>Connect Four — GameHub</PageTitle>
+<PageTitle>Connect Four · Bateka games</PageTitle>
 
 <MudStack Spacing="4" AlignItems="AlignItems.Center">
 
@@ -44,33 +45,33 @@
         </MudGrid>
     </MudPaper>
 
-    @if (!_gameStarted)
+    @if (!_playing)
     {
         <MudPaper Elevation="2" Class="pa-6 rounded-xl" Style="max-width:400px; width:100%;">
             <MudStack Spacing="4" AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.h6">Game Mode</MudText>
-                <MudChipSet T="GameMode" @bind-SelectedValue="_gameMode"
+                <MudChipSet T="ConnectFourMode" @bind-SelectedValue="_mode"
                             SelectionMode="SelectionMode.SingleSelection">
-                    <MudChip T="GameMode" Value="GameMode.SinglePlayer"
+                    <MudChip T="ConnectFourMode" Value="ConnectFourMode.VersusAi"
                              Color="Color.Primary" Variant="Variant.Outlined">
                         🤖 vs AI
                     </MudChip>
-                    <MudChip T="GameMode" Value="GameMode.TwoPlayer"
+                    <MudChip T="ConnectFourMode" Value="ConnectFourMode.TwoPlayer"
                              Color="Color.Secondary" Variant="Variant.Outlined">
                         👥 2 Players
                     </MudChip>
                 </MudChipSet>
 
-                @if (_gameMode == GameMode.SinglePlayer)
+                @if (_mode == ConnectFourMode.VersusAi)
                 {
                     <MudText Typo="Typo.h6">Difficulty</MudText>
-                    <MudChipSet T="ConnectFourDifficulty" @bind-SelectedValue="_difficulty"
+                    <MudChipSet T="Difficulty" @bind-SelectedValue="_difficulty"
                                 SelectionMode="SelectionMode.SingleSelection">
-                        <MudChip T="ConnectFourDifficulty" Value="ConnectFourDifficulty.Easy"
+                        <MudChip T="Difficulty" Value="Difficulty.Easy"
                                  Color="Color.Success" Variant="Variant.Outlined">Easy</MudChip>
-                        <MudChip T="ConnectFourDifficulty" Value="ConnectFourDifficulty.Medium"
+                        <MudChip T="Difficulty" Value="Difficulty.Medium"
                                  Color="Color.Warning" Variant="Variant.Outlined">Medium</MudChip>
-                        <MudChip T="ConnectFourDifficulty" Value="ConnectFourDifficulty.Hard"
+                        <MudChip T="Difficulty" Value="Difficulty.Hard"
                                  Color="Color.Error" Variant="Variant.Outlined">Hard</MudChip>
                     </MudChipSet>
                 }
@@ -87,22 +88,22 @@
     else
     {
         <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
-            <div class="disc disc--@(_currentPlayer == 1 ? "red" : "yellow") disc--indicator"></div>
+            <div class="disc disc--@CurrentColorClass disc--indicator"></div>
             <MudText Typo="Typo.h6" Color="@StatusColor">@StatusMessage</MudText>
         </MudStack>
         
         <div class="cf-board">
             <div class="cf-columns">
-                @for (int c = 0; c < Cols; c++)
+                @for (int c = 0; c < Columns; c++)
                 {
                     var col = c;
-                    <button class="cf-col-btn @(_hoverCol == col ? "cf-col-btn--hover" : "")"
-                            @onmouseenter="() => _hoverCol = col"
-                            @onmouseleave="() => _hoverCol = null"
-                            @onclick="() => OnColumnClick(col)">
-                        @if (_hoverCol == col && !_gameOver)
+                    <button class="cf-col-btn @(_hoverColumn == col ? "cf-col-btn--hover" : "")"
+                            @onmouseenter="() => _hoverColumn = col"
+                            @onmouseleave="() => _hoverColumn = null"
+                            @onclick="() => OnColumnClickAsync(col)">
+                        @if (_hoverColumn == col && !_game.IsOver)
                         {
-                            <div class="disc disc--@(_currentPlayer == 1 ? "red" : "yellow") disc--preview"></div>
+                            <div class="disc disc--@CurrentColorClass disc--preview"></div>
                         }
                     </button>
                 }
@@ -111,12 +112,12 @@
             <div class="cf-grid">
                 @for (int r = 0; r < Rows; r++)
                 {
-                    for (int c = 0; c < Cols; c++)
+                    for (int c = 0; c < Columns; c++)
                     {
                         var row = r;
                         var col = c;
-                        var cell = _board[r, c];
-                        var isWinner = _winningCells.Contains((row, col));
+                        var cell = _game.Board[r, c];
+                        var isWinner = _game.WinningCells.Contains(new BoardCell(row, col));
                         <div class="cf-cell">
                             <div class="disc @GetDiscClass(cell, isWinner)"></div>
                         </div>
@@ -138,7 +139,7 @@
             </MudButton>
             <MudButton Variant="Variant.Outlined" Color="Color.Error"
                        StartIcon="@Icons.Material.Filled.DeleteForever"
-                       OnClick="ResetStats">
+                       OnClick="ResetStatsAsync">
                 Reset Stats
             </MudButton>
         </MudStack>

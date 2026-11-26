@@ -1,5 +1,9 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="bateka.games/bateka.games.csproj" />
+    <Project Path="bateka.games.Engine/bateka.games.Engine.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="bateka.games.Engine.Tests/bateka.games.Engine.Tests.csproj" />
   </Folder>
 </Solution>

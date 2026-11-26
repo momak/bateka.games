@@ -1,8 +1,6 @@
 ﻿@page "/leaderboard"
-@using bateka.games.Pages.Memory
-@layout MainLayout
 
-<PageTitle>Bateka.Games | Leaderboard</PageTitle>
+<PageTitle>Leaderboard · Bateka games</PageTitle>
 
 <MudStack Spacing="5">
 
@@ -19,7 +17,7 @@
                 <MudStack Spacing="1">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
                         <MudIcon Icon="@Icons.Material.Filled.Close" Style="color:white;" />
-                        <MudText Typo="Typo.subtitle1" Style="color:white; font-family:'Orbitron',sans-serif;">
+                        <MudText Typo="Typo.subtitle1" Style="color:white;">
                             Tic Tac Toe
                         </MudText>
                     </MudStack>
@@ -36,7 +34,7 @@
                 <MudStack Spacing="1">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
                         <MudIcon Icon="@Icons.Material.Filled.GridView" Style="color:white;" />
-                        <MudText Typo="Typo.subtitle1" Style="color:white; font-family:'Orbitron',sans-serif;">
+                        <MudText Typo="Typo.subtitle1" Style="color:white;">
                             Memory Match
                         </MudText>
                     </MudStack>
@@ -52,7 +50,7 @@
                 <MudStack Spacing="1">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
                         <MudIcon Icon="@Icons.Material.Filled.Gamepad" Style="color:white;" />
-                        <MudText Typo="Typo.subtitle1" Style="color:white; font-family:'Orbitron',sans-serif;">
+                        <MudText Typo="Typo.subtitle1" Style="color:white;">
                             Snake
                         </MudText>
                     </MudStack>
@@ -68,7 +66,7 @@
                 <MudStack Spacing="1">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
                         <MudIcon Icon="@Icons.Material.Filled.Album" Style="color:white;" />
-                        <MudText Typo="Typo.subtitle1" Style="color:white; font-family:'Orbitron',sans-serif;">
+                        <MudText Typo="Typo.subtitle1" Style="color:white;">
                             Connect Four
                         </MudText>
                     </MudStack>
@@ -96,7 +94,7 @@
                         </MudAvatar>
                     </CardHeaderAvatar>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6" Style="font-family:'Orbitron',sans-serif;">
+                        <MudText Typo="Typo.h6">
                             Tic Tac Toe
                         </MudText>
                         <MudText Typo="Typo.caption" Class="mud-text-secondary">
@@ -134,7 +132,7 @@
                         </MudAvatar>
                     </CardHeaderAvatar>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6" Style="font-family:'Orbitron',sans-serif;">
+                        <MudText Typo="Typo.h6">
                             Memory Match
                         </MudText>
                         <MudText Typo="Typo.caption" Class="mud-text-secondary">
@@ -158,7 +156,7 @@
                                     @best.Pairs Pairs
                                 </MudText>
                                 <StatRow Label="Fewest Moves" Value="@best.Moves.ToString()" Color="Color.Primary" />
-                                <StatRow Label="Best Time" Value="@MemoryGame.FormatTime(best.BestTime)" Color="Color.Secondary" />
+                                <StatRow Label="Best Time" Value="@TimeFormat.MinutesSeconds(best.BestTime)" Color="Color.Secondary" />
                             }
                         </MudStack>
                     }
@@ -176,7 +174,7 @@
                         </MudAvatar>
                     </CardHeaderAvatar>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6" Style="font-family:'Orbitron',sans-serif;">
+                        <MudText Typo="Typo.h6">
                             Snake
                         </MudText>
                         <MudText Typo="Typo.caption" Class="mud-text-secondary">
@@ -212,7 +210,7 @@
                         </MudAvatar>
                     </CardHeaderAvatar>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6" Style="font-family:'Orbitron',sans-serif;">
+                        <MudText Typo="Typo.h6">
                             Connect Four
                         </MudText>
                         <MudText Typo="Typo.caption" Class="mud-text-secondary">

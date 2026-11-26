@@ -1,8 +1,8 @@
 ﻿@page "/game/snake"
-@layout MainLayout
-@implements IDisposable
+@* No @using of bateka.games.Engine.Snake here: its Direction clashes with MudBlazor.Direction. *@
+@implements IAsyncDisposable
 
-<PageTitle>Bateka.Games | Snake</PageTitle>
+<PageTitle>Snake · Bateka games</PageTitle>
 
 <MudStack Spacing="3" AlignItems="AlignItems.Center">
 
@@ -41,17 +41,17 @@
     </MudPaper>
 
     <!-- In-game HUD -->
-    @if (_gameStarted)
+    @if (_game.IsStarted)
     {
         <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Center">
             <MudChip T="string" Color="Color.Primary" Icon="@Icons.Material.Filled.Score">
-                Score: @_score
+                Score: @_game.Score
             </MudChip>
             <MudChip T="string" Color="Color.Secondary" Icon="@Icons.Material.Filled.Speed">
-                Level: @_level
+                Level: @_game.Level
             </MudChip>
             <MudChip T="string" Color="Color.Success" Icon="@Icons.Material.Filled.LinearScale">
-                Length: @_snake.Count
+                Length: @_game.Length
             </MudChip>
         </MudStack>
     }
@@ -61,17 +61,17 @@
          @onkeydown="OnKeyDown" @onkeydown:preventDefault="true">
 
         <canvas @ref="_canvasRef"
-                width="@(GridSize* CellSize)"
-                height="@(GridSize* CellSize)"
+                width="@CanvasSize"
+                height="@CanvasSize"
                 class="snake-canvas">
         </canvas>
 
         <!-- Overlays -->
-        @if (!_gameStarted && !_gameOver)
+        @if (!_game.IsStarted)
         {
             <div class="snake-overlay">
                 <MudStack AlignItems="AlignItems.Center" Spacing="3">
-                    <MudText Typo="Typo.h5" Style="color:white; font-family:'Orbitron',sans-serif;">
+                    <MudText Typo="Typo.h5" Style="color:white;">
                         🐍 Snake
                     </MudText>
                     <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.7); text-align:center;">
@@ -80,21 +80,21 @@
                     <MudButton Variant="Variant.Filled" Color="Color.Primary"
                                Size="Size.Large"
                                StartIcon="@Icons.Material.Filled.PlayArrow"
-                               OnClick="StartGame">
+                               OnClick="StartGameAsync">
                         Start Game
                     </MudButton>
                 </MudStack>
             </div>
         }
 
-        @if (_gameOver)
+        @if (_game.IsOver)
         {
             <div class="snake-overlay">
                 <MudStack AlignItems="AlignItems.Center" Spacing="3">
-                    <MudText Typo="Typo.h5" Style="color:white; font-family:'Orbitron',sans-serif;">
+                    <MudText Typo="Typo.h5" Style="color:white;">
                         💀 Game Over
                     </MudText>
-                    <MudText Typo="Typo.h6" Style="color:white;">Score: @_score</MudText>
+                    <MudText Typo="Typo.h6" Style="color:white;">Score: @_game.Score</MudText>
                     @if (_isNewHighScore)
                     {
                         <MudChip T="string" Color="Color.Warning"
@@ -104,25 +104,25 @@
                     }
                     <MudButton Variant="Variant.Filled" Color="Color.Primary"
                                StartIcon="@Icons.Material.Filled.Replay"
-                               OnClick="StartGame">
+                               OnClick="StartGameAsync">
                         Play Again
                     </MudButton>
                     <MudButton Variant="Variant.Outlined"
                                Style="color:white; border-color:white;"
                                StartIcon="@Icons.Material.Filled.DeleteForever"
-                               OnClick="ResetStats">
+                               OnClick="ResetStatsAsync">
                         Reset Stats
                     </MudButton>
                 </MudStack>
             </div>
         }
 
-        @if (_paused && _gameStarted && !_gameOver)
+        @if (ShowPausedOverlay)
         {
             <div class="snake-overlay">
                 <MudStack AlignItems="AlignItems.Center" Spacing="3">
                     <MudText Typo="Typo.h5"
-                             Style="color:white; font-family:'Orbitron',sans-serif;">
+                             Style="color:white;">
                         ⏸ Paused
                     </MudText>
                     <MudButton Variant="Variant.Filled" Color="Color.Primary"
@@ -136,7 +136,7 @@
     </div>
 
     <!-- Controls -->
-    @if (_gameStarted && !_gameOver)
+    @if (_game.IsRunning)
     {
         <MudButton Variant="Variant.Outlined"
                    Color="Color.Default"
@@ -147,27 +147,27 @@
     }
 
     <!-- D-Pad (shown on touch devices or always visible) -->
-    @if (_gameStarted && !_gameOver && _showDPad)
+    @if (_game.IsRunning && _showDPad)
     {
         <div class="dpad">
             <div class="dpad-row">
                 <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowUp"
                                Color="Color.Primary" Variant="Variant.Filled"
-                               OnClick="@(() => SetDirection(Direction.Up))" />
+                               OnClick="TurnUp" />
             </div>
             <div class="dpad-row">
                 <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowLeft"
                                Color="Color.Primary" Variant="Variant.Filled"
-                               OnClick="@(() => SetDirection(Direction.Left))" />
-                <div style="width:48px;height:48px;"></div>
+                               OnClick="TurnLeft" />
+                <div class="dpad-gap"></div>
                 <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowRight"
                                Color="Color.Primary" Variant="Variant.Filled"
-                               OnClick="@(() => SetDirection(Direction.Right))" />
+                               OnClick="TurnRight" />
             </div>
             <div class="dpad-row">
                 <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown"
                                Color="Color.Primary" Variant="Variant.Filled"
-                               OnClick="@(() => SetDirection(Direction.Down))" />
+                               OnClick="TurnDown" />
             </div>
         </div>
     }

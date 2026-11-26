@@ -1,7 +1,8 @@
 ﻿@page "/game/tictactoe"
-@layout MainLayout
+@using bateka.games.Engine
+@using bateka.games.Engine.TicTacToe
 
-<PageTitle>Bateka.Games | Tic Tac Toe</PageTitle>
+<PageTitle>Tic Tac Toe · Bateka games</PageTitle>
 
 <MudStack Spacing="4" AlignItems="AlignItems.Center">
 
@@ -62,14 +63,14 @@
     </MudText>
 
     <!-- Board -->
-    <div class="board @(_gameOver ? "board--disabled" : "")">
-        @for (int i = 0; i < 9; i++)
+    <div class="board @(_game.IsOver ? "board--disabled" : "")">
+        @for (int i = 0; i < TicTacToeBoard.Size; i++)
         {
             var index = i;
             var cell = Board[index];
             <button class="cell @GetCellClass(index)"
-                    @onclick="() => OnCellClick(index)"
-                    disabled="@(cell != CellState.Empty || _gameOver || _isAiThinking)">
+                    @onclick="() => OnCellClickAsync(index)"
+                    disabled="@IsCellDisabled(index)">
                 @if (cell == CellState.X)
                 {
                     <span class="cell-x">X</span>
@@ -93,7 +94,7 @@
         <MudButton Variant="Variant.Outlined"
                    Color="Color.Error"
                    StartIcon="@Icons.Material.Filled.DeleteForever"
-                   OnClick="ResetStats">
+                   OnClick="ResetStatsAsync">
             Reset Stats
         </MudButton>
     </MudStack>

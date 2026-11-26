@@ -1,22 +1,21 @@
-﻿using bateka.games.Pages.ConnectFour;
-using bateka.games.Pages.Memory;
-using bateka.games.Pages.Snake;
-using bateka.games.Pages.TicTacToe;
+﻿using bateka.games.Stats;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 namespace bateka.games.Pages.Leaderboard;
 
+/// <summary>
+/// Your stats from every game and the achievements they unlock, read from this device. The
+/// competition increment turns this into real leaderboards across Bateka users.
+/// </summary>
 public partial class Leaderboard : ComponentBase
 {
-    [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Inject] private LocalStatsStore StatsStore { get; set; } = default!;
 
     private TicTacToeStats? _tttStats;
     private MemoryStats? _memoryStats;
     private SnakeStats? _snakeStats;
-    private List<Achievement> _achievements = [];
     private ConnectFourStats? _cfStats;
-
+    private List<Achievement> _achievements = [];
 
     private string _memoryBestLabel =>
         _memoryStats?.BestScores.OrderBy(s => s.Moves).FirstOrDefault() is { } best
@@ -25,28 +24,11 @@ public partial class Leaderboard : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadAllStats();
+        _tttStats = await StatsStore.LoadAsync<TicTacToeStats>(StatsKeys.TicTacToe);
+        _memoryStats = await StatsStore.LoadAsync<MemoryStats>(StatsKeys.Memory);
+        _snakeStats = await StatsStore.LoadAsync<SnakeStats>(StatsKeys.Snake);
+        _cfStats = await StatsStore.LoadAsync<ConnectFourStats>(StatsKeys.ConnectFour);
         BuildAchievements();
-    }
-
-    private async Task LoadAllStats()
-    {
-        _tttStats = await LoadStat<TicTacToeStats>("ttt_stats");
-        _memoryStats = await LoadStat<MemoryStats>("memory_stats");
-        _snakeStats = await LoadStat<SnakeStats>("snake_stats");
-        _cfStats = await LoadStat<ConnectFourStats>("cf_stats");  // ← add
-    }
-
-    private async Task<T?> LoadStat<T>(string key) where T : class
-    {
-        try
-        {
-            var json = await JS.InvokeAsync<string?>("localStorage.getItem", key);
-            return string.IsNullOrEmpty(json)
-                ? null
-                : System.Text.Json.JsonSerializer.Deserialize<T>(json);
-        }
-        catch { return null; }
     }
 
     private void BuildAchievements()
@@ -135,7 +117,7 @@ public partial class Leaderboard : ComponentBase
                 Unlocked = (_tttStats?.Total ?? 0) >= 1 &&
                            (_memoryStats?.GamesPlayed ?? 0) >= 1 &&
                            (_snakeStats?.GamesPlayed ?? 0) >= 1 &&
-                           (_cfStats?.GamesPlayed ?? 0) >= 1       // ← add
+                           (_cfStats?.GamesPlayed ?? 0) >= 1
             },
             new Achievement
             {
@@ -144,7 +126,7 @@ public partial class Leaderboard : ComponentBase
                 Unlocked = ((_tttStats?.Total ?? 0) +
                             (_memoryStats?.GamesPlayed ?? 0) +
                             (_snakeStats?.GamesPlayed ?? 0) +
-                            (_cfStats?.GamesPlayed ?? 0)) >= 50    // ← add
+                            (_cfStats?.GamesPlayed ?? 0)) >= 50
             },
 
             // Connect Four
