@@ -1,286 +1,117 @@
-﻿@page "/leaderboard"
+@page "/leaderboard"
 @inherits BusyComponentBase
+@using bateka.games.Engine
+@using bateka.games.Engine.Memory
+@using bateka.games.Shared.Contracts.Games
 
 <PageTitle>Leaderboard · Bateka games</PageTitle>
 
 <MudStack Spacing="5">
 
-    <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Primary">
-        🏆 Leaderboard
-    </MudText>
+    <PageHeader Eyebrow="Bateka games" Title="Leaderboard" Subtitle="All-time bests across every player. Your row is highlighted." />
 
-    @if (!_loaded)
+    @* Which board: the game, then its size or difficulty *@
+    <MudStack Spacing="2">
+        <MudChipSet T="GameKind" SelectedValue="_game" SelectedValueChanged="OnGameChangedAsync"
+                    SelectionMode="SelectionMode.SingleSelection" CheckMark="false">
+            @foreach (var game in GameNames.All)
+            {
+                <MudChip T="GameKind" Value="game" Color="Color.Primary" Variant="Variant.Outlined">@GameNames.Of(game)</MudChip>
+            }
+        </MudChipSet>
+
+        @if (_game == GameKind.Memory)
+        {
+            <MudChipSet T="int" SelectedValue="_pairs" SelectedValueChanged="OnPairsChangedAsync"
+                        SelectionMode="SelectionMode.SingleSelection" CheckMark="false">
+                @foreach (var pairs in MemoryRules.Sizes)
+                {
+                    <MudChip T="int" Value="pairs" Size="Size.Small" Variant="Variant.Outlined">@pairs pairs</MudChip>
+                }
+            </MudChipSet>
+        }
+        else if (GameNames.HasDifficulty(_game))
+        {
+            <MudChipSet T="Difficulty" SelectedValue="_difficulty" SelectedValueChanged="OnDifficultyChangedAsync"
+                        SelectionMode="SelectionMode.SingleSelection" CheckMark="false">
+                @foreach (var difficulty in Difficulties)
+                {
+                    <MudChip T="Difficulty" Value="difficulty" Size="Size.Small" Variant="Variant.Outlined">@difficulty</MudChip>
+                }
+            </MudChipSet>
+        }
+    </MudStack>
+
+    @* The board *@
+    @if (_board is null)
     {
-        <CardSkeleton Count="4" Height="120px" MinWidth="220px" Label="Loading your stats" />
+        <CardSkeleton Count="1" Height="240px" MinWidth="100%" Label="Loading the board" />
+    }
+    else if (_board.Rows.Count == 0)
+    {
+        <MudPaper Elevation="0" Class="bateka-panel pa-6">
+            <MudText Typo="Typo.body1" Align="Align.Center">Nobody has played @GameNames.Board(_board.Game, _board.Difficulty, _board.Pairs) yet — be the first!</MudText>
+        </MudPaper>
     }
     else
     {
-        <!-- Personal Best Summary -->
-        <MudPaper Elevation="3" Class="pa-5 rounded-xl"
-                  Style="background: linear-gradient(135deg, var(--mud-palette-primary) 0%, var(--mud-palette-secondary) 100%);">
-            <MudText Typo="Typo.overline" Style="color:rgba(255,255,255,0.7);">Personal Bests</MudText>
-            <MudGrid Spacing="3" Class="mt-1">
-                <MudItem xs="12" sm="3">
-                    <MudStack Spacing="1">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                            <MudIcon Icon="@Icons.Material.Filled.Close" Style="color:white;" />
-                            <MudText Typo="Typo.subtitle1" Style="color:white;">
-                                Tic Tac Toe
-                            </MudText>
-                        </MudStack>
-                        <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.85);">
-                            Win Rate: <strong>@_tttStats?.WinRate%</strong>
-                        </MudText>
-                        <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.85);">
-                            Wins: <strong>@(_tttStats?.Wins ?? 0)</strong> /
-                            Games: <strong>@(_tttStats?.Total ?? 0)</strong>
-                        </MudText>
-                    </MudStack>
-                </MudItem>
-                <MudItem xs="12" sm="3">
-                    <MudStack Spacing="1">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                            <MudIcon Icon="@Icons.Material.Filled.GridView" Style="color:white;" />
-                            <MudText Typo="Typo.subtitle1" Style="color:white;">
-                                Memory Match
-                            </MudText>
-                        </MudStack>
-                        <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.85);">
-                            Best: <strong>@(_memoryBestLabel)</strong>
-                        </MudText>
-                        <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.85);">
-                            Games: <strong>@(_memoryStats?.GamesPlayed ?? 0)</strong>
-                        </MudText>
-                    </MudStack>
-                </MudItem>
-                <MudItem xs="12" sm="3">
-                    <MudStack Spacing="1">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                            <MudIcon Icon="@Icons.Material.Filled.Gamepad" Style="color:white;" />
-                            <MudText Typo="Typo.subtitle1" Style="color:white;">
-                                Snake
-                            </MudText>
-                        </MudStack>
-                        <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.85);">
-                            High Score: <strong>@(_snakeStats?.HighScore ?? 0)</strong>
-                        </MudText>
-                        <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.85);">
-                            Longest: <strong>@(_snakeStats?.LongestSnake ?? 0)</strong>
-                        </MudText>
-                    </MudStack>
-                </MudItem>
-                <MudItem xs="12" sm="3">
-                    <MudStack Spacing="1">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                            <MudIcon Icon="@Icons.Material.Filled.Album" Style="color:white;" />
-                            <MudText Typo="Typo.subtitle1" Style="color:white;">
-                                Connect Four
-                            </MudText>
-                        </MudStack>
-                        <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.85);">
-                            Wins: <strong>@(_cfStats?.Wins ?? 0)</strong>
-                        </MudText>
-                        <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.85);">
-                            Streak: <strong>@(_cfStats?.LongestWinStreak ?? 0)</strong>
-                        </MudText>
-                    </MudStack>
-                </MudItem>
-            </MudGrid>
+        <MudPaper Elevation="0" Class="bateka-panel">
+            <MudSimpleTable Dense="true" Hover="true" Elevation="0">
+                <thead>
+                    <tr>
+                        <th class="games-board__rank">#</th>
+                        <th>Player</th>
+                        <th class="games-board__value">Best</th>
+                        <th class="games-board__games">Games</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in _board.Rows)
+                    {
+                        <tr class="@(row.IsMe ? "games-board__me" : null)">
+                            <td class="games-board__rank">@BoardFormat.Rank(row.Rank)</td>
+                            <td>@row.Player@(row.IsMe ? " (you)" : null)</td>
+                            <td class="games-board__value">@BoardFormat.Value(_board.Game, row)</td>
+                            <td class="games-board__games">@row.Games</td>
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
         </MudPaper>
+    }
 
-        <!-- Side by Side Game Stats -->
-        <MudGrid Spacing="4">
+    @* Achievements *@
+    <MudText Typo="Typo.h5">Achievements</MudText>
 
-            <!-- Tic Tac Toe -->
-            <MudItem xs="12" md="3">
-                <MudCard Elevation="3" Class="rounded-xl" Style="height:100%;">
-                    <MudCardHeader>
-                        <CardHeaderAvatar>
-                            <MudAvatar Color="Color.Primary">
-                                <MudIcon Icon="@Icons.Material.Filled.Close" />
-                            </MudAvatar>
-                        </CardHeaderAvatar>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h6">
-                                Tic Tac Toe
-                            </MudText>
-                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                                vs Algorithm
-                            </MudText>
-                        </CardHeaderContent>
-                    </MudCardHeader>
-                    <MudCardContent>
-                        @if (_tttStats is null || _tttStats.Total == 0)
-                        {
-                            <MudText Class="mud-text-secondary" Align="Align.Center">No games played yet.</MudText>
-                        }
-                        else
-                        {
-                            <MudStack Spacing="3">
-                                <StatRow Label="Games Played" Value="@_tttStats.Total.ToString()" />
-                                <StatRow Label="Wins" Value="@_tttStats.Wins.ToString()" Color="Color.Success" />
-                                <StatRow Label="Losses" Value="@_tttStats.Losses.ToString()" Color="Color.Error" />
-                                <StatRow Label="Draws" Value="@_tttStats.Draws.ToString()" Color="Color.Warning" />
-                                <StatRow Label="Win Rate" Value="@($"{_tttStats.WinRate}%")" Color="Color.Primary" />
-                                <StatRow Label="Avg Moves / Game" Value="@_tttStats.AvgMoves.ToString()" />
-                            </MudStack>
-                        }
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
+    @if (_achievements is null)
+    {
+        <CardSkeleton Count="6" Height="120px" MinWidth="220px" Label="Loading achievements" />
+    }
+    else
+    {
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">
+            @UnlockedCount / @_achievements.Count unlocked
+        </MudText>
 
-            <!-- Memory Match -->
-            <MudItem xs="12" md="3">
-                <MudCard Elevation="3" Class="rounded-xl" Style="height:100%;">
-                    <MudCardHeader>
-                        <CardHeaderAvatar>
-                            <MudAvatar Color="Color.Secondary">
-                                <MudIcon Icon="@Icons.Material.Filled.GridView" />
-                            </MudAvatar>
-                        </CardHeaderAvatar>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h6">
-                                Memory Match
-                            </MudText>
-                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                                Best per grid size
-                            </MudText>
-                        </CardHeaderContent>
-                    </MudCardHeader>
-                    <MudCardContent>
-                        @if (_memoryStats is null || _memoryStats.GamesPlayed == 0)
-                        {
-                            <MudText Class="mud-text-secondary" Align="Align.Center">No games played yet.</MudText>
-                        }
-                        else
-                        {
-                            <MudStack Spacing="3">
-                                <StatRow Label="Games Played" Value="@_memoryStats.GamesPlayed.ToString()" />
-                                @foreach (var best in _memoryStats.BestScores.OrderBy(s => s.Pairs))
-                                {
-                                    <MudDivider />
-                                    <MudText Typo="Typo.overline" Class="mud-text-secondary">
-                                        @best.Pairs Pairs
-                                    </MudText>
-                                    <StatRow Label="Fewest Moves" Value="@best.Moves.ToString()" Color="Color.Primary" />
-                                    <StatRow Label="Best Time" Value="@TimeFormat.MinutesSeconds(best.BestSeconds)" Color="Color.Secondary" />
-                                }
-                            </MudStack>
-                        }
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
-
-            <!-- Snake -->
-            <MudItem xs="12" md="3">
-                <MudCard Elevation="3" Class="rounded-xl" Style="height:100%;">
-                    <MudCardHeader>
-                        <CardHeaderAvatar>
-                            <MudAvatar Style="background:#FF6D00;">
-                                <MudIcon Icon="@Icons.Material.Filled.Gamepad" />
-                            </MudAvatar>
-                        </CardHeaderAvatar>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h6">
-                                Snake
-                            </MudText>
-                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                                All-time bests
-                            </MudText>
-                        </CardHeaderContent>
-                    </MudCardHeader>
-                    <MudCardContent>
-                        @if (_snakeStats is null || _snakeStats.GamesPlayed == 0)
-                        {
-                            <MudText Class="mud-text-secondary" Align="Align.Center">No games played yet.</MudText>
-                        }
-                        else
-                        {
-                            <MudStack Spacing="3">
-                                <StatRow Label="Games Played" Value="@_snakeStats.GamesPlayed.ToString()" />
-                                <StatRow Label="High Score" Value="@_snakeStats.HighScore.ToString()" Color="Color.Warning" />
-                                <StatRow Label="Longest Snake" Value="@_snakeStats.LongestSnake.ToString()" Color="Color.Success" />
-                                <StatRow Label="Average Score" Value="@_snakeStats.AverageScore.ToString()" Color="Color.Primary" />
-                            </MudStack>
-                        }
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
-
-            <!-- Connect Four -->
-            <MudItem xs="12" md="3">
-                <MudCard Elevation="3" Class="rounded-xl" Style="height:100%;">
-                    <MudCardHeader>
-                        <CardHeaderAvatar>
-                            <MudAvatar Style="background:#1565C0;">
-                                <MudIcon Icon="@Icons.Material.Filled.Album" />
-                            </MudAvatar>
-                        </CardHeaderAvatar>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h6">
-                                Connect Four
-                            </MudText>
-                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                                vs AI or 2 Players
-                            </MudText>
-                        </CardHeaderContent>
-                    </MudCardHeader>
-                    <MudCardContent>
-                        @if (_cfStats is null || _cfStats.GamesPlayed == 0)
-                        {
-                            <MudText Class="mud-text-secondary" Align="Align.Center">No games played yet.</MudText>
-                        }
-                        else
-                        {
-                            <MudStack Spacing="3">
-                                <StatRow Label="Games Played" Value="@_cfStats.GamesPlayed.ToString()" />
-                                <StatRow Label="Wins" Value="@_cfStats.Wins.ToString()" Color="Color.Success" />
-                                <StatRow Label="Losses" Value="@_cfStats.Losses.ToString()" Color="Color.Error" />
-                                <StatRow Label="Draws" Value="@_cfStats.Draws.ToString()" Color="Color.Warning" />
-                                <StatRow Label="Win Streak" Value="@_cfStats.LongestWinStreak.ToString()" Color="Color.Info" />
-                            </MudStack>
-                        }
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
-
-        </MudGrid>
-
-        <!-- Achievements -->
-        <MudText Typo="Typo.h5" Class="mt-2">🎖 Achievements</MudText>
-
-        <MudGrid Spacing="3">
+        <div class="games-achievements">
             @foreach (var achievement in _achievements)
             {
-                <MudItem xs="12" sm="6" md="3">
-                    <MudPaper Elevation="@(achievement.Unlocked ? 3 : 1)"
-                              Class="pa-4 rounded-xl"
-                              Style="@(achievement.Unlocked
-                                                      ? "border: 1px solid var(--mud-palette-warning);"
-                                                      : "opacity: 0.5;")">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-                            <MudText Style="font-size:2rem;">
-                                @(achievement.Unlocked ? achievement.Icon : "🔒")
-                            </MudText>
-                            <MudStack Spacing="0">
-                                <MudText Typo="Typo.subtitle2">@achievement.Title</MudText>
-                                <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                                    @achievement.Description
-                                </MudText>
-                                @if (achievement.Unlocked)
-                                {
-                                    <MudChip T="string" Size="Size.Small"
-                                             Color="Color.Warning" Class="mt-1"
-                                             Icon="@Icons.Material.Filled.CheckCircle">
-                                        Unlocked
-                                    </MudChip>
-                                }
-                            </MudStack>
-                        </MudStack>
-                    </MudPaper>
-                </MudItem>
+                <MudPaper Elevation="0" Class="bateka-panel">
+                    <div class="@AchievementClass(achievement)">
+                        <div class="games-achievement__icon">@achievement.Icon</div>
+                        <div class="games-achievement__body">
+                            <MudText Typo="Typo.subtitle1"><strong>@achievement.Title</strong></MudText>
+                            <MudText Typo="Typo.body2" Class="mud-text-secondary">@achievement.Description</MudText>
+                            @if (achievement.UnlockedAt is { } at)
+                            {
+                                <MudText Typo="Typo.caption" Color="Color.Success">Unlocked @LocalDate(at)</MudText>
+                            }
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">@OthersText(achievement)</MudText>
+                        </div>
+                    </div>
+                </MudPaper>
             }
-        </MudGrid>
+        </div>
     }
 
 </MudStack>

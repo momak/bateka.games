@@ -77,6 +77,20 @@ namespace bateka.games.Data.Migrations
 
                     b.ToTable("GameResults");
                 });
+
+            modelBuilder.Entity("bateka.games.Domain.Entities.Player", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("NotesSeenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("Players");
+                });
 #pragma warning restore 612, 618
         }
     }

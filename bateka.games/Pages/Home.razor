@@ -1,10 +1,36 @@
 @page "/"
+@inherits BusyComponentBase
 
 <PageTitle>Home · Bateka games</PageTitle>
 
 <MudStack Spacing="6">
 
     <PageHeader Eyebrow="Bateka games" Title="Pick a game" Subtitle="Classic games — beat your best, then beat everyone else's." />
+
+    @* "ana passed you" since you last looked. Hidden when there's nothing new. *@
+    @if (_notes is null)
+    {
+        <CardSkeleton Count="1" Height="72px" MinWidth="100%" Label="Loading your news" />
+    }
+    else if (_notes.Count > 0)
+    {
+        <MudPaper Elevation="0" Class="bateka-panel pa-4">
+            <MudStack Spacing="2">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                    <MudText Typo="Typo.h6">📣 Since you last looked</MudText>
+                    <BusyButton Variant="Variant.Text" Color="Color.Primary" Busy="@IsRunning(nameof(DismissNotesAsync))"
+                                Disabled="IsBusy" OnClick="DismissNotesAsync">
+                        Got it
+                    </BusyButton>
+                </MudStack>
+                @foreach (var note in _notes)
+                {
+                    <MudText Typo="Typo.body2">@BoardFormat.Note(note)</MudText>
+                }
+                <MudLink Href="@PageRoutes.Leaderboard" Typo="Typo.body2">See the leaderboard</MudLink>
+            </MudStack>
+        </MudPaper>
+    }
 
     <MudGrid Spacing="4">
 

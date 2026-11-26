@@ -1,4 +1,7 @@
+using bateka.games.Services.Achievements;
 using bateka.games.Services.GameResults;
+using bateka.games.Services.Leaderboards;
+using bateka.games.Services.Notes;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace bateka.games.Services.Extensions;
@@ -12,6 +15,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddGamesServices(this IServiceCollection services)
     {
         services.AddScoped<GameResultService>();
+        services.AddScoped<LeaderboardService>();
+        services.AddScoped<NoteService>();
+        services.AddScoped<AchievementService>();
         return services;
     }
 }

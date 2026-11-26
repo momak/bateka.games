@@ -10,6 +10,7 @@ public static class RepositoryExtensions
     {
         services.AddScoped<IGameResultRepository, GameResultRepository>();
         services.AddScoped<IGamesStatsRepository, GamesStatsRepository>();
+        services.AddScoped<IPlayerRepository, PlayerRepository>();
         return services;
     }
 }

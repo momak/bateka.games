@@ -7,6 +7,7 @@ namespace bateka.games.Data;
 public class GamesDbContext(DbContextOptions<GamesDbContext> options) : DbContext(options)
 {
     public DbSet<GameResult> GameResults => Set<GameResult>();
+    public DbSet<Player> Players => Set<Player>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) =>
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(GamesDbContext).Assembly);

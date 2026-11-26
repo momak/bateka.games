@@ -161,6 +161,7 @@ public partial class Snake : BusyComponentBase, IAsyncDisposable
             var response = await ResultsApi.RecordAsync(ResultRequests.ForSnake(_game));
             Stats = response.Stats.Snake;
             _isNewHighScore = response.IsPersonalBest;
+            if (PassedMessages.For(response.Passed) is { } message) Snackbar.Add(message, MudBlazor.Severity.Success);
         });
 
     // ── Drawing ──────────────────────────────────────────────

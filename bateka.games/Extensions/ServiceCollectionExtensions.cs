@@ -29,6 +29,9 @@ public static class ServiceCollectionExtensions
 
         services.AddApiClient<ResultsApiClient>(hostBaseAddress);
         services.AddApiClient<StatsApiClient>(hostBaseAddress);
+        services.AddApiClient<LeaderboardsApiClient>(hostBaseAddress);
+        services.AddApiClient<NotesApiClient>(hostBaseAddress);
+        services.AddApiClient<AchievementsApiClient>(hostBaseAddress);
 
         return services;
     }

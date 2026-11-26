@@ -83,6 +83,7 @@ public partial class TicTacToe : BusyComponentBase
             {
                 var response = await ResultsApi.RecordAsync(ResultRequests.ForTicTacToe(_game, _difficulty));
                 Stats = response.Stats.TicTacToe;
+                if (PassedMessages.For(response.Passed) is { } message) Snackbar.Add(message, Severity.Success);
             });
         }
     }

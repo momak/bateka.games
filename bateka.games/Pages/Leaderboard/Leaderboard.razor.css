@@ -1,0 +1,56 @@
+/* Only markup this page renders itself (MudBlazor's own elements don't carry the scope). */
+
+/* The board: rank and numbers narrow, the player's name takes the rest. */
+.games-board__rank {
+    width: 3rem;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.games-board__value {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.games-board__games {
+    width: 4rem;
+    text-align: right;
+    color: var(--games-muted);
+}
+
+/* your own row */
+.games-board__me td {
+    background: var(--games-accent-soft);
+    font-weight: 700;
+}
+
+/* Achievements: cards that wrap, two or three across on an iPad, one on a phone. */
+.games-achievements {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.games-achievement {
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.games-achievement--locked {
+    opacity: 0.55;
+}
+
+.games-achievement__icon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.games-achievement__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}

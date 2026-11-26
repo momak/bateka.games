@@ -103,6 +103,7 @@ public partial class ConnectFour : BusyComponentBase
             {
                 var response = await ResultsApi.RecordAsync(ResultRequests.ForConnectFour(_game));
                 Stats = response.Stats.ConnectFour;
+                if (PassedMessages.For(response.Passed) is { } message) Snackbar.Add(message, Severity.Success);
             });
         }
     }

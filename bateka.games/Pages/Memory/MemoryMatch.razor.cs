@@ -88,6 +88,7 @@ public partial class MemoryMatch : BusyComponentBase, IDisposable
             var response = await ResultsApi.RecordAsync(ResultRequests.ForMemory(_game, _elapsedSeconds));
             Stats = response.Stats.Memory;
             _isNewBest = response.IsPersonalBest;
+            if (PassedMessages.For(response.Passed) is { } message) Snackbar.Add(message, MudBlazor.Severity.Success);
         });
     }
 
