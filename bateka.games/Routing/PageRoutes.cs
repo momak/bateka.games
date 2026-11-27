@@ -14,6 +14,12 @@ public static class PageRoutes
 
     private const string Game = "game";
 
+    /// <summary>
+    /// The games list (the home page's address). Every game lives under it, so its menu link stays
+    /// highlighted while you play.
+    /// </summary>
+    public const string Games = Game;
+
     public const string Snake = $"{Game}/snake";
     public const string Memory = $"{Game}/memory";
     public const string TicTacToe = $"{Game}/tictactoe";
