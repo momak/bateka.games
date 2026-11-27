@@ -1,15 +1,20 @@
 ﻿.snake-container {
     position: relative;
+    /* the board is the touch controller: no scrolling, zooming or text selection on it */
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
     outline: none;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 24px rgba(0,0,0,0.3);
 }
 
-/* Drawn at 480 × 480; on a phone the CSS shrinks it to the screen (same picture, smaller cells). */
+/* Drawn at 480 × 480; on a phone the CSS shrinks it to the screen (same picture, smaller cells).
+   The height term keeps board + arrows on one screen; never below 260px so cells stay visible. */
 .snake-canvas {
     display: block;
-    width: min(480px, calc(100vw - 32px));
+    width: min(480px, calc(100vw - 32px), max(260px, calc(100dvh - 380px)));
     height: auto;
     aspect-ratio: 1;
     background: #0a0a0a;
@@ -35,8 +40,18 @@
 }
 
 .dpad-gap {
-    width: 48px;
-    height: 48px;
+    width: 64px;
+    height: 64px;
+}
+
+/* big thumb targets */
+.dpad ::deep .mud-icon-button {
+    width: 64px;
+    height: 64px;
+}
+
+.dpad ::deep .mud-icon-button .mud-icon-root {
+    font-size: 2.25rem;
 }
 
 .dpad-row {

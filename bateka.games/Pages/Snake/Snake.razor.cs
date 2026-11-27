@@ -6,6 +6,7 @@ using bateka.games.Shared.Contracts.Stats;
 using Bateka.UI.Components.Common;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 
 namespace bateka.games.Pages.Snake;
 
@@ -32,7 +33,10 @@ public partial class Snake : BusyComponentBase, IAsyncDisposable
 
     private bool _paused;
     private bool _isNewHighScore;
-    private bool _showDPad;
+    /// <summary>Phone or tablet: swipe steering, on-screen arrows, and no stats bar while playing.</summary>
+    private bool _isTouch;
+
+    private DotNetObjectReference<Snake>? _swipeReceiver;
 
     /// <summary>Null while loading (the stats bar shows a skeleton).</summary>
     private SnakeStatsDto? Stats { get; set; }
@@ -40,6 +44,9 @@ public partial class Snake : BusyComponentBase, IAsyncDisposable
     private static int CanvasSize => SnakeRules.GridSize * CellSize;
 
     private bool ShowPausedOverlay => _paused && _game.IsRunning;
+
+    /// <summary>On a phone the stats bar steps aside while playing, so board and arrows fit on screen.</summary>
+    private bool ShowStatsBar => !(_isTouch && _game.IsRunning);
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,7 +58,13 @@ public partial class Snake : BusyComponentBase, IAsyncDisposable
     {
         if (!firstRender) return;
 
-        _showDPad = await Canvas.IsTouchDeviceAsync();
+        _isTouch = await Canvas.IsTouchDeviceAsync();
+        if (_isTouch)
+        {
+            _swipeReceiver = DotNetObjectReference.Create(this);
+            await Canvas.AttachSwipeAsync(_containerRef, _swipeReceiver);
+        }
+
         await _containerRef.FocusAsync();
         await DrawAsync();
         StateHasChanged();
@@ -86,6 +99,18 @@ public partial class Snake : BusyComponentBase, IAsyncDisposable
     private void TurnDown() => Turn(Direction.Down);
     private void TurnLeft() => Turn(Direction.Left);
     private void TurnRight() => Turn(Direction.Right);
+
+    /// <summary>Called by snake.js for a swipe on the board.</summary>
+    [JSInvokable(SnakeCanvas.SwipeCallback)]
+    public void OnSwipe(string swipe)
+    {
+        if (_paused || !_game.IsRunning) return;
+
+        if (SnakeSwipes.ToDirection(swipe) is { } direction)
+        {
+            Turn(direction);
+        }
+    }
 
     private void OnKeyDown(KeyboardEventArgs e)
     {
@@ -170,10 +195,17 @@ public partial class Snake : BusyComponentBase, IAsyncDisposable
         Canvas.DrawAsync(_canvasRef, new SnakeFrame(
             SnakeRules.GridSize, CellSize, _game.Body, _game.Food, _game.Head, _game.IsOver));
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         StopLoop();
+
+        if (_swipeReceiver is not null)
+        {
+            await Canvas.DetachSwipeAsync(_containerRef);
+            _swipeReceiver.Dispose();
+            _swipeReceiver = null;
+        }
+
         GC.SuppressFinalize(this);
-        return ValueTask.CompletedTask;
     }
 }

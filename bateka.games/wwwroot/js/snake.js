@@ -16,6 +16,61 @@ export function isTouchDevice() {
     return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 }
 
+// ── Swipe to steer ──────────────────────────────────────────
+// A turn fires as soon as the finger has moved far enough, not when it lifts — so one stroke can
+// make several turns (right, then down…) and the snake reacts while you're still touching.
+
+const swipeMinPx = 24;
+const swipeHandlers = new WeakMap();
+
+export function attachSwipe(element, receiver) {
+    detachSwipe(element);
+
+    let from = null;
+
+    const onStart = (e) => {
+        const t = e.changedTouches[0];
+        from = { x: t.clientX, y: t.clientY };
+    };
+
+    const onMove = (e) => {
+        if (!from) return;
+        // the board is the controller: no page scroll or pull-to-refresh while steering
+        e.preventDefault();
+
+        const t = e.changedTouches[0];
+        const dx = t.clientX - from.x;
+        const dy = t.clientY - from.y;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) < swipeMinPx) return;
+
+        const direction = Math.abs(dx) > Math.abs(dy)
+            ? (dx > 0 ? 'right' : 'left')
+            : (dy > 0 ? 'down' : 'up');
+
+        from = { x: t.clientX, y: t.clientY };
+        receiver.invokeMethodAsync('OnSwipe', direction);
+    };
+
+    const onEnd = () => { from = null; };
+
+    element.addEventListener('touchstart', onStart, { passive: true });
+    element.addEventListener('touchmove', onMove, { passive: false });
+    element.addEventListener('touchend', onEnd, { passive: true });
+    element.addEventListener('touchcancel', onEnd, { passive: true });
+    swipeHandlers.set(element, { onStart, onMove, onEnd });
+}
+
+export function detachSwipe(element) {
+    const handlers = element && swipeHandlers.get(element);
+    if (!handlers) return;
+
+    element.removeEventListener('touchstart', handlers.onStart);
+    element.removeEventListener('touchmove', handlers.onMove);
+    element.removeEventListener('touchend', handlers.onEnd);
+    element.removeEventListener('touchcancel', handlers.onEnd);
+    swipeHandlers.delete(element);
+}
+
 export function draw(canvas, frame) {
     const ctx = canvas.getContext('2d');
     drawBoard(ctx, frame.gridSize, frame.cellSize);

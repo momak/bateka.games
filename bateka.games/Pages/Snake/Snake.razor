@@ -18,7 +18,7 @@
             <CardSkeleton Count="4" Height="64px" MinWidth="72px" Label="Loading your stats" />
         </div>
     }
-    else
+    else if (ShowStatsBar)
     {
         <MudPaper Elevation="2" Class="pa-3 rounded-xl" Style="width:100%; max-width:520px;">
             <MudGrid Justify="Justify.Center" Spacing="2">
@@ -53,7 +53,7 @@
     <!-- In-game HUD -->
     @if (_game.IsStarted)
     {
-        <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Center">
+        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.Center" Class="flex-wrap">
             <MudChip T="string" Color="Color.Primary" Icon="@Icons.Material.Filled.Score">
                 Score: @_game.Score
             </MudChip>
@@ -87,6 +87,12 @@
                     <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.7); text-align:center;">
                         Eat food to grow. Don't hit the walls or yourself!
                     </MudText>
+                    @if (_isTouch)
+                    {
+                        <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.7); text-align:center;">
+                            Swipe on the board to steer.
+                        </MudText>
+                    }
                     <MudButton Variant="Variant.Filled" Color="Color.Primary"
                                Size="Size.Large"
                                StartIcon="@Icons.Material.Filled.PlayArrow"
@@ -151,26 +157,26 @@
     }
 
     <!-- D-Pad (shown on touch devices or always visible) -->
-    @if (_game.IsRunning && _showDPad)
+    @if (_game.IsRunning && _isTouch)
     {
         <div class="dpad">
             <div class="dpad-row">
                 <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowUp"
-                               Color="Color.Primary" Variant="Variant.Filled"
+                               Color="Color.Primary" Variant="Variant.Filled" Size="Size.Large"
                                OnClick="TurnUp" />
             </div>
             <div class="dpad-row">
                 <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowLeft"
-                               Color="Color.Primary" Variant="Variant.Filled"
+                               Color="Color.Primary" Variant="Variant.Filled" Size="Size.Large"
                                OnClick="TurnLeft" />
                 <div class="dpad-gap"></div>
                 <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowRight"
-                               Color="Color.Primary" Variant="Variant.Filled"
+                               Color="Color.Primary" Variant="Variant.Filled" Size="Size.Large"
                                OnClick="TurnRight" />
             </div>
             <div class="dpad-row">
                 <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown"
-                               Color="Color.Primary" Variant="Variant.Filled"
+                               Color="Color.Primary" Variant="Variant.Filled" Size="Size.Large"
                                OnClick="TurnDown" />
             </div>
         </div>

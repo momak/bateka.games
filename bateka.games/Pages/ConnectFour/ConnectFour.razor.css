@@ -1,18 +1,26 @@
-﻿.cf-board {
+﻿/* One cell size drives the whole board. 64px on desktop; on a phone 7 cells + gaps + padding fit the
+   screen width (the 80px covers page padding, board padding and the six 4px gaps). */
+.cf-board {
+    --cf-cell: min(64px, calc((100vw - 80px) / 7));
+    --cf-gap: 4px;
     position: relative;
     display: inline-block;
+    max-width: 100%;
 }
 
 .cf-columns {
     display: grid;
-    grid-template-columns: repeat(7, 64px);
-    gap: 4px;
+    grid-template-columns: repeat(7, var(--cf-cell));
+    gap: var(--cf-gap);
     margin-bottom: 4px;
+    /* line up with the grid below, which has 8px padding */
+    padding: 0 8px;
 }
 
 .cf-col-btn {
-    width: 64px;
-    height: 40px;
+    width: var(--cf-cell);
+    height: calc(var(--cf-cell) * 0.625);
+    padding: 0;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -33,27 +41,30 @@
 
 .cf-grid {
     display: grid;
-    grid-template-columns: repeat(7, 64px);
-    grid-template-rows: repeat(6, 64px);
-    gap: 4px;
+    grid-template-columns: repeat(7, var(--cf-cell));
+    grid-template-rows: repeat(6, var(--cf-cell));
+    gap: var(--cf-gap);
     background: #1565C0;
     padding: 8px;
     border-radius: 16px;
     box-shadow: 0 6px 24px rgba(0,0,0,0.4);
 }
 
+/* tapping anywhere in a column drops there (the strip above is too small for a thumb) */
 .cf-cell {
-    width: 64px;
-    height: 64px;
+    width: var(--cf-cell);
+    height: var(--cf-cell);
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Discs */
 .disc {
-    width: 54px;
-    height: 54px;
+    width: calc(var(--cf-cell) * 0.84);
+    height: calc(var(--cf-cell) * 0.84);
     border-radius: 50%;
     transition: background 0.2s;
 }
@@ -80,11 +91,12 @@
 }
 
 .disc--preview {
-    width: 36px;
-    height: 36px;
+    width: calc(var(--cf-cell) * 0.56);
+    height: calc(var(--cf-cell) * 0.56);
     opacity: 0.7;
 }
 
+/* the turn indicator sits outside .cf-board, so it keeps a fixed size */
 .disc--indicator {
     width: 20px;
     height: 20px;

@@ -128,7 +128,7 @@
                         var col = c;
                         var cell = _game.Board[r, c];
                         var isWinner = _game.WinningCells.Contains(new BoardCell(row, col));
-                        <div class="cf-cell">
+                        <div class="cf-cell" @onclick="() => OnColumnClickAsync(col)">
                             <div class="disc @GetDiscClass(cell, isWinner)"></div>
                         </div>
                     }
