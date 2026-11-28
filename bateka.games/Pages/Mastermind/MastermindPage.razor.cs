@@ -35,8 +35,11 @@ public partial class MastermindPage : BusyComponentBase, IDisposable
     private MastermindOptions _draft = new();
     private bool _showOptions;
 
-    /// <summary>The row being filled; null = empty hole.</summary>
-    private int?[] _current = [];
+    /// <summary>
+    /// The row being filled; null = empty hole. Sized for the classic board from the start: the page
+    /// renders once before the saved options are loaded and the game starts.
+    /// </summary>
+    private int?[] _current = new int?[MastermindRules.Classic.Columns];
 
     private bool _isNewBest;
     private int _elapsedSeconds;
@@ -49,7 +52,7 @@ public partial class MastermindPage : BusyComponentBase, IDisposable
     private int CurrentRow => _game.IsOver ? -1 : _game.Rows.Count;
 
     private bool CanCheck =>
-        !_game.IsOver && !IsBusy && _current.All(c => c is not null)
+        _game.IsStarted && !_game.IsOver && !IsBusy && _current.All(c => c is not null)
         && MastermindRules.IsValid(_game.Setup, _current.Select(c => c!.Value).ToArray());
 
     private string BoardText =>
@@ -89,7 +92,7 @@ public partial class MastermindPage : BusyComponentBase, IDisposable
     }
 
     private bool CanPick(int colour) =>
-        !_game.IsOver && _current.Any(c => c is null)
+        _game.IsStarted && !_game.IsOver && _current.Any(c => c is null)
         && (_game.Setup.AllowRepeats || !_current.Contains(colour));
 
     /// <summary>A colour goes into the first empty hole of the current row.</summary>
@@ -103,7 +106,7 @@ public partial class MastermindPage : BusyComponentBase, IDisposable
     /// <summary>Tapping a peg in the current row takes it out again.</summary>
     private void ClearPeg(int column)
     {
-        if (!_game.IsOver) _current[column] = null;
+        if (_game.IsStarted && !_game.IsOver && column < _current.Length) _current[column] = null;
     }
 
     private async Task CheckAsync()
@@ -158,7 +161,7 @@ public partial class MastermindPage : BusyComponentBase, IDisposable
     private int? PegAt(int row, int column)
     {
         if (row < _game.Rows.Count) return _game.Rows[row].Guess[column];
-        return row == CurrentRow ? _current[column] : null;
+        return row == CurrentRow && column < _current.Length ? _current[column] : null;
     }
 
     /// <summary>The row's key dots: black for each exact peg, then white for each misplaced one, then empty.</summary>
