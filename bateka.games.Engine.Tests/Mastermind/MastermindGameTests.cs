@@ -5,32 +5,39 @@ namespace bateka.games.Engine.Tests.Mastermind;
 
 public sealed class MastermindGameTests
 {
-    /// <summary>Medium (repeats allowed) takes one Next(6) per peg, so the code is exactly these.</summary>
-    private static MastermindGame MediumWithCode(params int[] code)
+    /// <summary>Classic (repeats allowed) takes one Next(6) per column, so the code is exactly these.</summary>
+    private static MastermindGame ClassicWithCode(params int[] code)
     {
         var game = new MastermindGame(new FixedRandom(code));
-        game.Start(Difficulty.Medium);
+        game.Start(MastermindRules.Classic);
+        return game;
+    }
+
+    private static MastermindGame Started(MastermindSetup setup, int seed)
+    {
+        var game = new MastermindGame(new Random(seed));
+        game.Start(setup);
         return game;
     }
 
     [Fact]
     public void The_right_guess_solves_it()
     {
-        var game = MediumWithCode(2, 0, 5, 1);
+        var game = ClassicWithCode(2, 0, 5, 1);
 
         Assert.Equal(MastermindGuessOutcome.Scored, game.Guess([0, 2, 5, 3]));
         Assert.Equal(MastermindGuessOutcome.Solved, game.Guess([2, 0, 5, 1]));
 
         Assert.True(game.IsSolved);
         Assert.True(game.IsOver);
-        Assert.Equal(2, game.Guesses);
+        Assert.Equal(2, game.GuessesUsed);
         Assert.Equal(new MastermindFeedback(1, 2), game.Rows[0].Feedback);
     }
 
     [Fact]
     public void The_code_stays_hidden_until_the_game_is_over()
     {
-        var game = MediumWithCode(2, 0, 5, 1);
+        var game = ClassicWithCode(2, 0, 5, 1);
 
         Assert.Null(game.RevealedCode);
 
@@ -40,11 +47,12 @@ public sealed class MastermindGameTests
     }
 
     [Fact]
-    public void Ten_wrong_guesses_end_the_game()
+    public void Running_out_of_guesses_ends_the_game()
     {
-        var game = MediumWithCode(2, 0, 5, 1);
+        var game = new MastermindGame(new FixedRandom(2, 0, 5, 1));
+        game.Start(MastermindRules.Classic with { Guesses = 6 });
 
-        for (var i = 1; i < MastermindRules.MaxGuesses; i++)
+        for (var i = 1; i < 6; i++)
         {
             Assert.Equal(MastermindGuessOutcome.Scored, game.Guess([3, 3, 3, 3]));
         }
@@ -64,17 +72,16 @@ public sealed class MastermindGameTests
     [InlineData(new[] { 0, 1, 2, -1 })]
     public void A_guess_the_board_cant_take_is_ignored(int[] guess)
     {
-        var game = MediumWithCode(2, 0, 5, 1);
+        var game = ClassicWithCode(2, 0, 5, 1);
 
         Assert.Equal(MastermindGuessOutcome.Invalid, game.Guess(guess));
         Assert.Empty(game.Rows);
     }
 
     [Fact]
-    public void Easy_refuses_a_repeated_colour()
+    public void Without_repeats_a_repeated_colour_is_refused()
     {
-        var game = new MastermindGame(new Random(3));
-        game.Start(Difficulty.Easy);
+        var game = Started(MastermindRules.Classic with { AllowRepeats = false }, seed: 3);
 
         Assert.Equal(MastermindGuessOutcome.Invalid, game.Guess([1, 1, 2, 3]));
         Assert.NotEqual(MastermindGuessOutcome.Invalid, game.Guess([1, 0, 2, 3]));
@@ -86,29 +93,44 @@ public sealed class MastermindGameTests
     [InlineData(3)]
     [InlineData(4)]
     [InlineData(5)]
-    public void Easy_codes_never_repeat_a_colour(int seed)
+    public void Without_repeats_the_code_never_repeats_a_colour(int seed)
     {
-        var game = new MastermindGame(new Random(seed));
-        game.Start(Difficulty.Easy);
+        var setup = new MastermindSetup(Columns: 6, Colours: 6, AllowRepeats: false, Guesses: 6);
+        var game = Started(setup, seed);
 
         // play it out to see the code
-        for (var i = 0; i < MastermindRules.MaxGuesses && !game.IsOver; i++) game.Guess([0, 1, 2, 3]);
-        var code = game.RevealedCode ?? [0, 1, 2, 3];
+        while (!game.IsOver) game.Guess([0, 1, 2, 3, 4, 5]);
+        var code = game.RevealedCode!;
 
-        Assert.Equal(MastermindRules.Easy.Pegs, code.Count);
-        Assert.Equal(code.Count, code.Distinct().Count());
-        Assert.All(code, colour => Assert.InRange(colour, 0, MastermindRules.Easy.Colours - 1));
+        Assert.Equal(6, code.Count);
+        Assert.Equal(6, code.Distinct().Count());
+        Assert.All(code, colour => Assert.InRange(colour, 0, 5));
     }
 
     [Fact]
-    public void Hard_is_five_pegs_of_eight_colours()
+    public void A_bigger_board_takes_longer_guesses()
     {
-        var game = new MastermindGame(new Random(9));
-        game.Start(Difficulty.Hard);
+        var game = Started(new MastermindSetup(Columns: 5, Colours: 8, AllowRepeats: true, Guesses: 12), seed: 9);
 
-        Assert.Equal(5, game.Setup.Pegs);
-        Assert.Equal(8, game.Setup.Colours);
         Assert.Equal(MastermindGuessOutcome.Invalid, game.Guess([0, 1, 2, 3]));
         Assert.NotEqual(MastermindGuessOutcome.Invalid, game.Guess([7, 7, 7, 7, 7]));
+        Assert.Equal(11, game.GuessesLeft);
+    }
+
+    [Theory]
+    [InlineData(4, 6, true, 10, true)]    // classic
+    [InlineData(3, 4, false, 6, true)]    // smallest
+    [InlineData(6, 8, true, 12, true)]    // biggest
+    [InlineData(6, 4, false, 10, false)]  // 6 different colours out of 4: impossible
+    [InlineData(6, 4, true, 10, true)]    // …fine with repeats
+    [InlineData(2, 6, true, 10, false)]   // too few columns
+    [InlineData(4, 9, true, 10, false)]   // too many colours
+    [InlineData(4, 6, true, 5, false)]    // too few guesses
+    public void Only_playable_boards_can_start(int columns, int colours, bool repeats, int guesses, bool valid)
+    {
+        var setup = new MastermindSetup(columns, colours, repeats, guesses);
+
+        Assert.Equal(valid, MastermindRules.IsValidSetup(setup));
+        if (!valid) Assert.Throws<ArgumentOutOfRangeException>(() => new MastermindGame(new Random(1)).Start(setup));
     }
 }

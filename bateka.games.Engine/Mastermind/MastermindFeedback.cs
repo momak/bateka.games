@@ -6,5 +6,5 @@ namespace bateka.games.Engine.Mastermind;
 /// </summary>
 public readonly record struct MastermindFeedback(int Exact, int Misplaced)
 {
-    public bool Cracks(MastermindSetup setup) => Exact == setup.Pegs;
+    public bool Cracks(MastermindSetup setup) => Exact == setup.Columns;
 }

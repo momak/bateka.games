@@ -1,34 +1,36 @@
 namespace bateka.games.Engine.Mastermind;
 
 /// <summary>
-/// The three boards. Medium is the classic game (4 pegs, 6 colours, repeats allowed); Easy takes the
-/// repeats away, Hard adds a peg and two colours. Ten guesses on every board.
+/// What a board may be. You pick it before playing (like Memory Match's pairs): columns, colours,
+/// repeats on or off, and how many guesses you get. Classic Mastermind is 4 columns, 6 colours,
+/// repeats allowed, 10 guesses.
 /// </summary>
 public static class MastermindRules
 {
-    public const int MaxGuesses = 10;
+    public const int MinColumns = 3;
+    public const int MaxColumns = 6;
 
-    /// <summary>The most colours any board uses (the page's palette has this many).</summary>
+    public const int MinColours = 4;
     public const int MaxColours = 8;
 
-    /// <summary>The longest code any board uses.</summary>
-    public const int MaxPegs = 5;
+    public const int MinGuesses = 6;
+    public const int MaxGuesses = 12;
 
-    public static readonly MastermindSetup Easy = new(Pegs: 4, Colours: 6, AllowRepeats: false, MaxGuesses);
-    public static readonly MastermindSetup Medium = new(Pegs: 4, Colours: 6, AllowRepeats: true, MaxGuesses);
-    public static readonly MastermindSetup Hard = new(Pegs: 5, Colours: MaxColours, AllowRepeats: true, MaxGuesses);
+    public static readonly MastermindSetup Classic = new(Columns: 4, Colours: 6, AllowRepeats: true, Guesses: 10);
 
-    public static MastermindSetup For(Difficulty difficulty) => difficulty switch
-    {
-        Difficulty.Easy => Easy,
-        Difficulty.Medium => Medium,
-        Difficulty.Hard => Hard,
-        _ => throw new ArgumentOutOfRangeException(nameof(difficulty), difficulty, null)
-    };
+    /// <summary>
+    /// A board that can be played: every number in range, and without repeats there must be at least
+    /// as many colours as columns (a code can't be 6 different colours out of 4).
+    /// </summary>
+    public static bool IsValidSetup(MastermindSetup setup) =>
+        setup.Columns is >= MinColumns and <= MaxColumns
+        && setup.Colours is >= MinColours and <= MaxColours
+        && setup.Guesses is >= MinGuesses and <= MaxGuesses
+        && (setup.AllowRepeats || setup.Colours >= setup.Columns);
 
     /// <summary>A guess (or a code) this board accepts: the right length, known colours, repeats only if allowed.</summary>
     public static bool IsValid(MastermindSetup setup, IReadOnlyList<int> pegs) =>
-        pegs.Count == setup.Pegs
+        pegs.Count == setup.Columns
         && pegs.All(colour => colour >= 0 && colour < setup.Colours)
         && (setup.AllowRepeats || pegs.Distinct().Count() == pegs.Count);
 }
