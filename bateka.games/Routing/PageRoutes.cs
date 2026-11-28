@@ -24,6 +24,7 @@ public static class PageRoutes
     public const string Memory = $"{Game}/memory";
     public const string TicTacToe = $"{Game}/tictactoe";
     public const string ConnectFour = $"{Game}/connectfour";
+    public const string Mastermind = $"{Game}/mastermind";
 
     public const string Leaderboard = "leaderboard";
 }

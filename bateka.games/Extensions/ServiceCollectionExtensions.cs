@@ -65,6 +65,9 @@ public static class ServiceCollectionExtensions
         // copy / share an invite link (the share.js module)
         services.AddScoped<ShareInterop>();
 
+        // Mastermind's options, remembered on this device
+        services.AddScoped<MastermindOptionsStore>();
+
         return services;
     }
 
