@@ -1,6 +1,9 @@
 namespace bateka.games.Engine;
 
-/// <summary>How hard the computer plays (Tic Tac Toe and Connect Four).</summary>
+/// <summary>
+/// How hard the computer plays (Tic Tac Toe and Connect Four), or how hard its code is to crack
+/// (Mastermind: see MastermindRules — Easy no repeats, Medium the classic game, Hard 5 pegs of 8 colours).
+/// </summary>
 public enum Difficulty
 {
     /// <summary>Random moves.</summary>
