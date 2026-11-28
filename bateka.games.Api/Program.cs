@@ -29,7 +29,8 @@ try
         .AddGamesServices()                                     // bateka.games.Services
         .AddGamesSecurity()
         .AddGamesHealthChecks()
-        .AddGamesInternalStats();
+        .AddGamesInternalStats()
+        .AddGamesRealtime();                                    // SignalR hub + match clock
 
     var app = builder.Build();
 
@@ -60,6 +61,7 @@ try
     app.UseGamesCors();
     app.UseGamesSecurity();
     app.MapControllers();
+    app.MapGamesHubs();
 
     // the URLs are only known once Kestrel has started
     app.Lifetime.ApplicationStarted.Register(() =>

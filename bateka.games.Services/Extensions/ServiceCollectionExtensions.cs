@@ -10,7 +10,7 @@ namespace bateka.games.Services.Extensions;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// The service layer. Needs, from the Api: ICurrentUser, the repositories
+    /// The service layer. Needs, from the Api: ICurrentUser, IMatchNotifier, the repositories
     /// (bateka.games.Repositories) and TimeProvider.
     /// </summary>
     public static IServiceCollection AddGamesServices(this IServiceCollection services)
@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<NoteService>();
         services.AddScoped<AchievementService>();
         services.AddScoped<MatchService>();
+        services.AddScoped<MatchClockService>();
         return services;
     }
 }

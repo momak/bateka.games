@@ -10,8 +10,13 @@ namespace bateka.games.Services.Matches;
 /// Online matches for the current user. The server is the referee: every move is checked against
 /// the stored moves with <see cref="MatchRules"/>, so a client can't play out of turn, on a taken
 /// square or after the end. Every read first applies the clock (<see cref="MatchTimeouts"/>).
+/// Each saved change is pushed to whoever watches the match (<see cref="IMatchNotifier"/>).
 /// </summary>
-public sealed class MatchService(IMatchRepository matches, ICurrentUser currentUser, TimeProvider clock)
+public sealed class MatchService(
+    IMatchRepository matches,
+    IMatchNotifier notifier,
+    ICurrentUser currentUser,
+    TimeProvider clock)
 {
     public async Task<MatchDto> CreateAsync(CreateMatchRequest request, CancellationToken ct)
     {
@@ -34,7 +39,7 @@ public sealed class MatchService(IMatchRepository matches, ICurrentUser currentU
     public async Task<ServiceResult<MatchDto>> GetAsync(Guid id, CancellationToken ct)
     {
         var match = await LoadAsync(id, ct);
-        if (match is null || !CanSee(match)) return ServiceError.NotFound(MatchMessages.NotFound);
+        if (match is null || !MatchPlayers.CanSee(match, currentUser.UserId)) return ServiceError.NotFound(MatchMessages.NotFound);
 
         return MatchMapper.ToDto(match);
     }
@@ -44,15 +49,15 @@ public sealed class MatchService(IMatchRepository matches, ICurrentUser currentU
         var mine = await matches.ListForUserAsync(currentUser.UserId, MatchLimits.RecentFinished, ct);
 
         var now = Now;
-        var changed = false;
-        foreach (var match in mine)
-        {
-            changed |= MatchTimeouts.Apply(match, now);
-        }
+        var ended = mine.Where(match => MatchTimeouts.Apply(match, now)).ToList();
 
-        if (changed)
+        // a conflict means the clock saved (and pushed) the same ending first
+        if (ended.Count > 0 && await matches.TrySaveChangesAsync(ct))
         {
-            await matches.TrySaveChangesAsync(ct); // a conflict means the clock saved the same ending
+            foreach (var match in ended)
+            {
+                await NotifyAsync(match, ct);
+            }
         }
 
         return mine.Select(MatchMapper.ToDto).ToList();
@@ -79,7 +84,7 @@ public sealed class MatchService(IMatchRepository matches, ICurrentUser currentU
         // two people opening the link at once: only one gets the seat
         if (!await matches.TrySaveChangesAsync(ct)) return ServiceError.Conflict(MatchMessages.AlreadyTaken);
 
-        return MatchMapper.ToDto(match);
+        return await NotifyAsync(match, ct);
     }
 
     public async Task<ServiceResult<MatchDto>> MoveAsync(Guid id, MakeMoveRequest request, CancellationToken ct)
@@ -124,7 +129,7 @@ public sealed class MatchService(IMatchRepository matches, ICurrentUser currentU
 
         if (!await matches.TrySaveChangesAsync(ct)) return ServiceError.Conflict(MatchMessages.ChangedMeanwhile);
 
-        return MatchMapper.ToDto(match);
+        return await NotifyAsync(match, ct);
     }
 
     /// <summary>While playing: you lose. While waiting (your own invite): the invite is withdrawn.</summary>
@@ -148,13 +153,18 @@ public sealed class MatchService(IMatchRepository matches, ICurrentUser currentU
 
         if (!await matches.TrySaveChangesAsync(ct)) return ServiceError.Conflict(MatchMessages.ChangedMeanwhile);
 
-        return MatchMapper.ToDto(match);
+        return await NotifyAsync(match, ct);
     }
 
     private DateTime Now => clock.GetUtcNow().UtcDateTime;
 
-    private bool CanSee(Match match) =>
-        match.Status == MatchStatus.Waiting || MatchPlayers.IsPlayer(match, currentUser.UserId);
+    /// <summary>Pushes the saved match to its watchers and returns what was pushed.</summary>
+    private async Task<MatchDto> NotifyAsync(Match match, CancellationToken ct)
+    {
+        var dto = MatchMapper.ToDto(match);
+        await notifier.MatchChangedAsync(dto, ct);
+        return dto;
+    }
 
     /// <summary>The match with the clock applied (and saved, if that ended it).</summary>
     private async Task<Match?> LoadAsync(Guid id, CancellationToken ct)
@@ -162,7 +172,11 @@ public sealed class MatchService(IMatchRepository matches, ICurrentUser currentU
         var match = await matches.GetAsync(id, ct);
         if (match is null || !MatchTimeouts.Apply(match, Now)) return match;
 
-        if (await matches.TrySaveChangesAsync(ct)) return match;
+        if (await matches.TrySaveChangesAsync(ct))
+        {
+            await NotifyAsync(match, ct);
+            return match;
+        }
 
         // the clock (or the other player) saved first: read what they saved
         return await matches.GetAsync(id, ct);

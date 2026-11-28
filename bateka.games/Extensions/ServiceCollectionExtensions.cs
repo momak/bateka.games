@@ -32,6 +32,10 @@ public static class ServiceCollectionExtensions
         services.AddApiClient<LeaderboardsApiClient>(hostBaseAddress);
         services.AddApiClient<NotesApiClient>(hostBaseAddress);
         services.AddApiClient<AchievementsApiClient>(hostBaseAddress);
+        services.AddApiClient<MatchesApiClient>(hostBaseAddress);
+
+        // one SignalR connection for the app session, opened on first use (online matches)
+        services.AddScoped<MatchHubClient>();
 
         return services;
     }

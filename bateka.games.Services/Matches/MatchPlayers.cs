@@ -10,6 +10,10 @@ public static class MatchPlayers
     public static bool IsPlayer(Match match, string userId) =>
         match.CreatorId == userId || match.OpponentId == userId;
 
+    /// <summary>A waiting match is the invite — anyone with the link may see it; after that only its players.</summary>
+    public static bool CanSee(Match match, string userId) =>
+        match.Status == MatchStatus.Waiting || IsPlayer(match, userId);
+
     /// <summary>The other seat's user; null while nobody has joined.</summary>
     public static string? Other(Match match, string userId) =>
         match.CreatorId == userId ? match.OpponentId : match.CreatorId;

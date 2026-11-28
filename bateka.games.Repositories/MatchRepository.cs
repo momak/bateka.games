@@ -29,6 +29,14 @@ public sealed class MatchRepository(GamesDbContext db) : IMatchRepository
         return [.. open, .. ended];
     }
 
+    // uses the (Status, MoveDeadline) and (Status, CreatedAt) indexes
+    public async Task<IReadOnlyList<Guid>> ListDueAsync(DateTime now, DateTime invitesCreatedBefore, CancellationToken ct) =>
+        await db.Matches.AsNoTracking()
+            .Where(x => (x.Status == MatchStatus.Playing && x.MoveDeadline <= now)
+                     || (x.Status == MatchStatus.Waiting && x.CreatedAt <= invitesCreatedBefore))
+            .Select(x => x.Id)
+            .ToListAsync(ct);
+
     public void Add(Match match) => db.Matches.Add(match);
 
     public async Task<bool> TrySaveChangesAsync(CancellationToken ct)
