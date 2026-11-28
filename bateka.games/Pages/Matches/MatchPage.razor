@@ -37,24 +37,44 @@
             }
         </MudText>
 
-        @if (match.Status == MatchStatus.Waiting && IsCreator)
+        @if (match.Status == MatchStatus.Waiting && IsCreator && match.Invited is { } invited)
         {
-            @* the invite: send the link *@
+            @* a direct invite or a rematch: it's already on their screen — just wait *@
             <MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:440px;">
-                <MudStack Spacing="3">
-                    @if (match.Invited is { } invited)
+                <MudStack Spacing="3" AlignItems="AlignItems.Center">
+                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Medium" />
+                    <MudText Typo="Typo.body2" Align="Align.Center">
+                        <b>@invited</b> got a pop-up (and finds it under "Your matches"). The board opens here
+                        as soon as they accept — @MatchFormat.MoveTime(match.MoveSeconds) per move.
+                    </MudText>
+
+                    @if (_showQr)
                     {
-                        <MudText Typo="Typo.body2">
-                            <b>@invited</b> gets a pop-up and finds it under "Your matches" — @MatchFormat.MoveTime(match.MoveSeconds) per move.
-                            Next to them? Let them scan this.
-                        </MudText>
+                        <InviteQrCode Url="@InviteUrl" />
                     }
                     else
                     {
-                        <MudText Typo="Typo.body2">
-                            Scan it with the other phone, or send the link. The first person to open it plays you — @MatchFormat.MoveTime(match.MoveSeconds) per move.
-                        </MudText>
+                        <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.QrCode"
+                                   OnClick="() => _showQr = true">
+                            Next to them? Show QR code
+                        </MudButton>
                     }
+                </MudStack>
+            </MudPaper>
+
+            <BusyButton Variant="Variant.Text" Color="Color.Default"
+                        Busy="@IsRunning(nameof(ResignAsync))" Disabled="IsBusy" OnClick="ResignAsync">
+                Cancel invite
+            </BusyButton>
+        }
+        else if (match.Status == MatchStatus.Waiting && IsCreator)
+        {
+            @* an open invite: send the link or let them scan it *@
+            <MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:440px;">
+                <MudStack Spacing="3">
+                    <MudText Typo="Typo.body2">
+                        Scan it with the other phone, or send the link. The first person to open it plays you — @MatchFormat.MoveTime(match.MoveSeconds) per move.
+                    </MudText>
                     <InviteQrCode Url="@InviteUrl" />
                     <MudTextField T="string" Value="@InviteUrl" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Dense" />
                     <MudStack Row="true" Spacing="2" Justify="Justify.Center" Class="flex-wrap">

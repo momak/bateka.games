@@ -39,6 +39,9 @@ public partial class MatchPage : BusyComponentBase, IAsyncDisposable
     private bool _loading = true;
     private bool _canShare;
     private bool _confirmResign;
+
+    /// <summary>A direct invite hides its QR code until asked (they already have the invite on their screen).</summary>
+    private bool _showQr;
     private bool _watching;
 
     private PeriodicTimer? _clock;
@@ -93,6 +96,7 @@ public partial class MatchPage : BusyComponentBase, IAsyncDisposable
         await Hub.UnwatchAsync(_match.Id);
         _watching = false;
         _confirmResign = false;
+        _showQr = false;
         await WatchAndReadAsync();
     }
 
