@@ -1,0 +1,51 @@
+/* Same look as the Tic Tac Toe page; the cell size follows the screen on phones. */
+.ttt-grid {
+    --ttt-cell: min(110px, calc((100vw - 64px) / 3));
+    display: grid;
+    grid-template-columns: repeat(3, var(--ttt-cell));
+    grid-template-rows: repeat(3, var(--ttt-cell));
+    gap: 8px;
+}
+
+.ttt-grid--locked {
+    opacity: 0.85;
+}
+
+.ttt-cell {
+    width: var(--ttt-cell);
+    height: var(--ttt-cell);
+    border-radius: 16px;
+    border: 2px solid var(--mud-palette-divider);
+    background: var(--mud-palette-surface);
+    font-size: calc(var(--ttt-cell) * 0.4);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, border-color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+    .ttt-cell:hover:not(:disabled) {
+        background: var(--mud-palette-action-default-hover);
+        border-color: var(--mud-palette-primary);
+    }
+
+    .ttt-cell:disabled {
+        cursor: default;
+    }
+
+.ttt-cell--winner {
+    border-color: var(--mud-palette-success) !important;
+    background: var(--mud-palette-success-hover) !important;
+}
+
+.ttt-x {
+    color: var(--mud-palette-primary);
+}
+
+.ttt-o {
+    color: var(--mud-palette-error);
+}

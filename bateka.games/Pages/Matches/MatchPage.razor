@@ -1,0 +1,143 @@
+@page "/game/match/{Id:guid}"
+@inherits BusyComponentBase
+@implements IAsyncDisposable
+@using bateka.games.Components.Matches
+@using bateka.games.Shared.Contracts.Games
+@using bateka.games.Shared.Contracts.Matches
+
+<PageTitle>@Title · Bateka games</PageTitle>
+
+<MudStack Spacing="4" AlignItems="AlignItems.Center">
+
+    <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Primary">@Title</MudText>
+
+    @if (_loading)
+    {
+        <CardSkeleton Count="1" Height="320px" MinWidth="280px" Label="Loading the match" />
+    }
+    else if (_match is null || _me is null)
+    {
+        <MudPaper Elevation="0" Class="bateka-panel pa-4">
+            <MudStack Spacing="2" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h6">This match isn't available</MudText>
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">It may have been someone else's, or the link is wrong.</MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="@PageRoutes.Games">Back to games</MudButton>
+            </MudStack>
+        </MudPaper>
+    }
+    else
+    {
+        var match = _match;
+
+        <MudText Typo="Typo.h6" Align="Align.Center" Color="@StatusColor">
+            @MatchFormat.Status(match, _me)
+            @if (Countdown is { } left)
+            {
+                <span class="match-clock @(IsLow ? "match-clock--low" : "")"> · @left</span>
+            }
+        </MudText>
+
+        @if (match.Status == MatchStatus.Waiting && IsCreator)
+        {
+            @* the invite: send the link *@
+            <MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:440px;">
+                <MudStack Spacing="3">
+                    <MudText Typo="Typo.body2">
+                        Send this link. The first person to open it plays you — @MatchFormat.MoveTime(match.MoveSeconds) per move.
+                    </MudText>
+                    <MudTextField T="string" Value="@InviteUrl" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    <MudStack Row="true" Spacing="2" Justify="Justify.Center" Class="flex-wrap">
+                        @if (_canShare)
+                        {
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Share" OnClick="ShareAsync">
+                                Share
+                            </MudButton>
+                        }
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.ContentCopy" OnClick="CopyAsync">
+                            Copy link
+                        </MudButton>
+                    </MudStack>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary" Align="Align.Center">
+                        This page updates by itself when they join. The invite is open for a day.
+                    </MudText>
+                </MudStack>
+            </MudPaper>
+
+            <BusyButton Variant="Variant.Text" Color="Color.Default"
+                        Busy="@IsRunning(nameof(ResignAsync))" Disabled="IsBusy" OnClick="ResignAsync">
+                Withdraw invite
+            </BusyButton>
+        }
+        else if (match.Status == MatchStatus.Waiting)
+        {
+            @* someone else's invite *@
+            <MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:400px;">
+                <MudStack Spacing="3" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.body1" Align="Align.Center">
+                        <b>@match.Creator</b> wants to play @GameNames.Of(match.Game) — @MatchFormat.MoveTime(match.MoveSeconds) per move.
+                    </MudText>
+                    <BusyButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                                StartIcon="@Icons.Material.Filled.PlayArrow"
+                                Busy="@IsRunning(nameof(JoinAsync))" Disabled="IsBusy" OnClick="JoinAsync">
+                        Join
+                    </BusyButton>
+                </MudStack>
+            </MudPaper>
+        }
+        else if (_position is not null)
+        {
+            @* playing or finished: the board (a cancelled invite has none) *@
+            @if (match.FirstPlayer is not null)
+            {
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                    @MatchFormat.YourSeat(match, _me) · vs @MatchFormat.OpponentOf(match, _me)
+                </MudText>
+            }
+
+            @if (match.Game == GameKind.TicTacToe)
+            {
+                <TicTacToeGrid Cells="_position.Cells" WinningCells="_position.WinningCells" CanPlay="CanPlay" OnPlay="MoveAsync" />
+            }
+            else
+            {
+                <ConnectFourGrid Cells="_position.Cells" WinningCells="_position.WinningCells" CanPlay="CanPlay" OnPlay="MoveAsync" />
+            }
+
+            @if (match.Status == MatchStatus.Playing)
+            {
+                @if (_confirmResign)
+                {
+                    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                        <MudText Typo="Typo.body2">Give up this game?</MudText>
+                        <BusyButton Variant="Variant.Filled" Color="Color.Error"
+                                    Busy="@IsRunning(nameof(ResignAsync))" Disabled="IsBusy" OnClick="ResignAsync">
+                            Yes, resign
+                        </BusyButton>
+                        <MudButton Variant="Variant.Text" OnClick="() => _confirmResign = false">No</MudButton>
+                    </MudStack>
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Text" Color="Color.Default" StartIcon="@Icons.Material.Filled.Flag"
+                               Disabled="IsBusy" OnClick="() => _confirmResign = true">
+                        Resign
+                    </MudButton>
+                }
+            }
+        }
+
+        @if (match.Status is MatchStatus.Finished or MatchStatus.Cancelled)
+        {
+            <MudStack Row="true" Spacing="2" Justify="Justify.Center" Class="flex-wrap">
+                <BusyButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Replay"
+                            Busy="@IsRunning(nameof(NewMatchAsync))" Disabled="IsBusy" OnClick="NewMatchAsync">
+                    New invite
+                </BusyButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Default" Href="@PageRoutes.Games">
+                    Back to games
+                </MudButton>
+            </MudStack>
+        }
+    }
+
+</MudStack>

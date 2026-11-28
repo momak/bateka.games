@@ -1,0 +1,20 @@
+@* A 3 × 3 board drawn from a replayed match (MatchRules.Replay): First = X, Second = O. *@
+<div class="ttt-grid @(CanPlay ? "" : "ttt-grid--locked")">
+    @for (var i = 0; i < Cells.Count; i++)
+    {
+        var index = i;
+        var cell = Cells[index];
+        <button class="ttt-cell @CellClass(index)"
+                disabled="@(!CanPlay || cell is not null)"
+                @onclick="() => OnPlay.InvokeAsync(index)">
+            @if (cell == MatchSide.First)
+            {
+                <span class="ttt-x">X</span>
+            }
+            else if (cell == MatchSide.Second)
+            {
+                <span class="ttt-o">O</span>
+            }
+        </button>
+    }
+</div>

@@ -33,6 +33,10 @@ public static class ServiceCollectionExtensions
         services.AddApiClient<NotesApiClient>(hostBaseAddress);
         services.AddApiClient<AchievementsApiClient>(hostBaseAddress);
         services.AddApiClient<MatchesApiClient>(hostBaseAddress);
+        services.AddApiClient<PlayersApiClient>(hostBaseAddress);
+
+        // my username as the API sees it, asked once per session ("you" in a match)
+        services.AddScoped<CurrentPlayer>();
 
         // one SignalR connection for the app session, opened on first use (online matches)
         services.AddScoped<MatchHubClient>();
@@ -57,6 +61,9 @@ public static class ServiceCollectionExtensions
 
         // Snake's canvas (the snake.js module), loaded once per session
         services.AddScoped<SnakeCanvas>();
+
+        // copy / share an invite link (the share.js module)
+        services.AddScoped<ShareInterop>();
 
         return services;
     }

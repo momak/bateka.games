@@ -1,0 +1,12 @@
+@* A 6 × 7 board drawn from a replayed match: First = Red, Second = Yellow. Tap anywhere in a column to drop there. *@
+<div class="cf4-board @(CanPlay ? "" : "cf4-board--locked")">
+    <div class="cf4-grid">
+        @for (var i = 0; i < Cells.Count; i++)
+        {
+            var index = i;
+            <div class="cf4-cell" @onclick="() => PlayColumnAsync(index)">
+                <div class="cf4-disc @DiscClass(index)"></div>
+            </div>
+        }
+    </div>
+</div>

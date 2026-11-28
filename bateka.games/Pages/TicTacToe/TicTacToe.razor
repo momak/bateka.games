@@ -2,6 +2,7 @@
 @inherits BusyComponentBase
 @using bateka.games.Engine
 @using bateka.games.Engine.TicTacToe
+@using bateka.games.Shared.Contracts.Games
 
 <PageTitle>Tic Tac Toe · Bateka games</PageTitle>
 
@@ -102,5 +103,8 @@
             New Game
         </MudButton>
     </MudStack>
+
+    <!-- Against another player, live -->
+    <OnlineMatchStarter Game="GameKind.TicTacToe" />
 
 </MudStack>

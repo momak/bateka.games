@@ -1,0 +1,9 @@
+.match-clock {
+    font-variant-numeric: tabular-nums;
+    color: var(--mud-palette-text-secondary);
+}
+
+.match-clock--low {
+    color: var(--mud-palette-error);
+    font-weight: 700;
+}

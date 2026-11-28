@@ -1,0 +1,29 @@
+@inherits BusyComponentBase
+
+@* "Play a friend online": pick the time per move, create the match, go to its page (with the invite link). *@
+<MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:400px;">
+    <MudStack Spacing="3" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h6">🌐 Play a friend online</MudText>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary" Align="Align.Center">
+            You get a link to send. Whoever opens it plays you.
+        </MudText>
+
+        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.Center" Class="flex-wrap">
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">Time per move:</MudText>
+            <MudChipSet T="int" @bind-SelectedValue="_moveSeconds" SelectionMode="SelectionMode.SingleSelection">
+                @foreach (var seconds in MatchLimits.MoveSecondsOptions)
+                {
+                    <MudChip T="int" Value="seconds" Color="Color.Primary" Variant="Variant.Outlined">
+                        @MatchFormat.MoveTime(seconds)
+                    </MudChip>
+                }
+            </MudChipSet>
+        </MudStack>
+
+        <BusyButton Variant="Variant.Filled" Color="Color.Secondary" FullWidth="true"
+                    StartIcon="@Icons.Material.Filled.Share"
+                    Busy="@IsRunning(nameof(CreateAsync))" Disabled="IsBusy" OnClick="CreateAsync">
+            Create invite
+        </BusyButton>
+    </MudStack>
+</MudPaper>

@@ -2,6 +2,7 @@
 @inherits BusyComponentBase
 @using bateka.games.Engine
 @using bateka.games.Engine.ConnectFour
+@using bateka.games.Shared.Contracts.Games
 
 <PageTitle>Connect Four · Bateka games</PageTitle>
 
@@ -94,6 +95,8 @@
                 </MudButton>
             </MudStack>
         </MudPaper>
+
+        <OnlineMatchStarter Game="GameKind.ConnectFour" />
     }
     else
     {
