@@ -22,9 +22,9 @@ public static class BoardFormat
     /// <summary>"ana passed you on Snake — 430 pts vs your 412 pts".</summary>
     public static string Note(NoteDto note) =>
         $"{note.Player} passed you on {GameNames.Board(note.Game, note.Difficulty, note.Pairs)} — " +
-        $"{Main(note.Game, note.TheirValue)} vs your {Main(note.Game, note.YourValue)}";
+        $"{MainValue(note.Game, note.TheirValue)} vs your {MainValue(note.Game, note.YourValue)}";
 
-    private static string Main(GameKind game, int value) => game switch
+    private static string MainValue(GameKind game, int value) => game switch
     {
         GameKind.Snake or GameKind.Mastermind => Points(value),
         GameKind.Memory => Moves(value),
