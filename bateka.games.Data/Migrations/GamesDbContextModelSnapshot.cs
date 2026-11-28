@@ -29,6 +29,15 @@ namespace bateka.games.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool?>("AllowRepeats")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("Colours")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Columns")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Difficulty")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
@@ -40,6 +49,9 @@ namespace bateka.games.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<int?>("GuessLimit")
+                        .HasColumnType("integer");
 
                     b.Property<int?>("Length")
                         .HasColumnType("integer");
