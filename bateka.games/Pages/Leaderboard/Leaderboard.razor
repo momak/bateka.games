@@ -16,7 +16,7 @@
                     SelectionMode="SelectionMode.SingleSelection" CheckMark="false">
             @foreach (var game in GameNames.All)
             {
-                <MudChip T="GameKind" Value="game" Color="Color.Primary" Variant="Variant.Outlined">@GameNames.Of(game)</MudChip>
+                <MudChip T="GameKind" Value="game" Color="Color.Primary" Variant="@ChipStyle.For(game == _game)">@GameNames.Of(game)</MudChip>
             }
         </MudChipSet>
 
@@ -26,7 +26,7 @@
                         SelectionMode="SelectionMode.SingleSelection" CheckMark="false">
                 @foreach (var pairs in MemoryRules.Sizes)
                 {
-                    <MudChip T="int" Value="pairs" Size="Size.Small" Variant="Variant.Outlined">@pairs pairs</MudChip>
+                    <MudChip T="int" Value="pairs" Size="Size.Small" Color="Color.Primary" Variant="@ChipStyle.For(pairs == _pairs)">@pairs pairs</MudChip>
                 }
             </MudChipSet>
         }
@@ -36,7 +36,7 @@
                         SelectionMode="SelectionMode.SingleSelection" CheckMark="false">
                 @foreach (var difficulty in Difficulties)
                 {
-                    <MudChip T="Difficulty" Value="difficulty" Size="Size.Small" Variant="Variant.Outlined">@difficulty</MudChip>
+                    <MudChip T="Difficulty" Value="difficulty" Size="Size.Small" Color="Color.Primary" Variant="@ChipStyle.For(difficulty == _difficulty)">@difficulty</MudChip>
                 }
             </MudChipSet>
         }

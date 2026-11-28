@@ -64,11 +64,11 @@
                 <MudChipSet T="ConnectFourMode" @bind-SelectedValue="_mode"
                             SelectionMode="SelectionMode.SingleSelection">
                     <MudChip T="ConnectFourMode" Value="ConnectFourMode.VersusAi"
-                             Color="Color.Primary" Variant="Variant.Outlined">
+                             Color="Color.Primary" Variant="@ChipStyle.For(_mode == ConnectFourMode.VersusAi)">
                         🤖 vs AI
                     </MudChip>
                     <MudChip T="ConnectFourMode" Value="ConnectFourMode.TwoPlayer"
-                             Color="Color.Secondary" Variant="Variant.Outlined">
+                             Color="Color.Secondary" Variant="@ChipStyle.For(_mode == ConnectFourMode.TwoPlayer)">
                         👥 2 Players
                     </MudChip>
                 </MudChipSet>
@@ -79,11 +79,11 @@
                     <MudChipSet T="Difficulty" @bind-SelectedValue="_difficulty"
                                 SelectionMode="SelectionMode.SingleSelection">
                         <MudChip T="Difficulty" Value="Difficulty.Easy"
-                                 Color="Color.Success" Variant="Variant.Outlined">Easy</MudChip>
+                                 Color="Color.Success" Variant="@ChipStyle.For(_difficulty == Difficulty.Easy)">Easy</MudChip>
                         <MudChip T="Difficulty" Value="Difficulty.Medium"
-                                 Color="Color.Warning" Variant="Variant.Outlined">Medium</MudChip>
+                                 Color="Color.Warning" Variant="@ChipStyle.For(_difficulty == Difficulty.Medium)">Medium</MudChip>
                         <MudChip T="Difficulty" Value="Difficulty.Hard"
-                                 Color="Color.Error" Variant="Variant.Outlined">Hard</MudChip>
+                                 Color="Color.Error" Variant="@ChipStyle.For(_difficulty == Difficulty.Hard)">Hard</MudChip>
                     </MudChipSet>
                 }
 

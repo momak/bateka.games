@@ -22,7 +22,7 @@
             <MudChipSet T="int" @bind-SelectedValue="_moveSeconds" SelectionMode="SelectionMode.SingleSelection">
                 @foreach (var seconds in MatchLimits.MoveSecondsOptions)
                 {
-                    <MudChip T="int" Value="seconds" Color="Color.Primary" Variant="Variant.Outlined">
+                    <MudChip T="int" Value="seconds" Color="Color.Primary" Variant="@ChipStyle.For(seconds == _moveSeconds)">
                         @MatchFormat.MoveTime(seconds)
                     </MudChip>
                 }
