@@ -73,7 +73,8 @@
     color: var(--games-muted);
 }
 
-/* key dots: two rows, black = right colour and place, white = right colour */
+/* key dots: two rows. Green = right colour, right place; yellow = right colour, wrong place
+   (Wordle's colours — the board game's black/white read the wrong way round on screen). */
 .mm-keys {
     display: grid;
     grid-auto-rows: calc(var(--mm-peg) * 0.32);
@@ -92,14 +93,31 @@
 }
 
 .mm-key--exact {
-    background: #111;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
+    background: #2e9e4f;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
 }
 
 .mm-key--misplaced {
-    background: #fff;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+    background: #e2b822;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
 }
+
+/* the legend under the board: same dots, fixed size */
+.mm-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 16px;
+    font-size: 0.85rem;
+    color: var(--games-muted);
+    --mm-peg: 32px;
+}
+
+    .mm-legend > span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
 
 /* bottom bar: options, colours, check */
 .mm-bar {
