@@ -5,8 +5,9 @@ public sealed record MyStatsDto(
     SnakeStatsDto Snake,
     MemoryStatsDto Memory,
     TicTacToeStatsDto TicTacToe,
-    ConnectFourStatsDto ConnectFour)
+    ConnectFourStatsDto ConnectFour,
+    MastermindStatsDto Mastermind)
 {
     public static readonly MyStatsDto Empty =
-        new(SnakeStatsDto.Empty, MemoryStatsDto.Empty, TicTacToeStatsDto.Empty, ConnectFourStatsDto.Empty);
+        new(SnakeStatsDto.Empty, MemoryStatsDto.Empty, TicTacToeStatsDto.Empty, ConnectFourStatsDto.Empty, MastermindStatsDto.Empty);
 }

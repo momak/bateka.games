@@ -5,5 +5,6 @@ public enum GameKind
     Snake,
     Memory,
     TicTacToe,
-    ConnectFour
+    ConnectFour,
+    Mastermind
 }

@@ -20,7 +20,8 @@ public static class NoteCalculator
         {
             var onBoard = results.Where(board.Contains).ToList();
             var mine = onBoard.Where(r => r.UserId == me).OrderBy(r => r.PlayedAt).ToList();
-            var meNow = BoardRules.EntryFor(board, me, mine)!;
+            // played but not on it (Mastermind with nothing solved): nobody can pass you yet
+            if (BoardRules.EntryFor(board, me, mine) is not { } meNow) continue;
             var boardSince = since > mine[0].PlayedAt ? since : mine[0].PlayedAt;
 
             foreach (var theirs in onBoard.Where(r => r.UserId != me).GroupBy(r => r.UserId))
@@ -28,8 +29,8 @@ public static class NoteCalculator
                 if (PassedAt(board, theirs.Key, theirs, meNow) is not { } passedAt || passedAt <= boardSince) continue;
 
                 // win rate can drop again: only a pass that still stands is news
-                var themNow = BoardRules.EntryFor(board, theirs.Key, theirs)!;
-                if (!BoardRules.IsAhead(board.Game, themNow, meNow)) continue;
+                if (BoardRules.EntryFor(board, theirs.Key, theirs) is not { } themNow
+                    || !BoardRules.IsAhead(board.Game, themNow, meNow)) continue;
 
                 notes.Add(new NoteDto(board.Game, board.Difficulty, board.Pairs, theirs.Key, themNow.Value, meNow.Value, passedAt));
             }
@@ -45,8 +46,10 @@ public static class NoteCalculator
         foreach (var game in theirs.OrderBy(r => r.PlayedAt))
         {
             played.Add(game);
-            var entry = BoardRules.EntryFor(board, player, played)!;
-            if (BoardRules.IsAhead(board.Game, entry, meNow)) return game.PlayedAt;
+            if (BoardRules.EntryFor(board, player, played) is { } entry && BoardRules.IsAhead(board.Game, entry, meNow))
+            {
+                return game.PlayedAt;
+            }
         }
 
         return null;

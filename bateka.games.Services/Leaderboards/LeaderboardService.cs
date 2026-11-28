@@ -13,7 +13,7 @@ public sealed class LeaderboardService(IGameResultRepository results, ICurrentUs
 {
     private const string NeedsPairs = "Memory boards are per size: add pairs (3–8).";
     private const string NeedsDifficulty = "This board is per difficulty: add difficulty (easy, medium or hard).";
-    private const string NoVariant = "Snake has a single board: no difficulty or pairs.";
+    private const string NoVariant = "This game has a single board: no difficulty or pairs.";
 
     public async Task<ServiceResult<LeaderboardDto>> GetAsync(GameKind game, Difficulty? difficulty, int? pairs, CancellationToken ct)
     {
@@ -26,7 +26,7 @@ public sealed class LeaderboardService(IGameResultRepository results, ICurrentUs
     /// <summary>The board those parameters name, or null when they don't fit the game.</summary>
     private static BoardKey? BoardFor(GameKind game, Difficulty? difficulty, int? pairs) => game switch
     {
-        GameKind.Snake when difficulty is null && pairs is null => new(game, null, null),
+        GameKind.Snake or GameKind.Mastermind when difficulty is null && pairs is null => new(game, null, null),
         GameKind.Memory when difficulty is null && pairs is { } p && MemoryRules.IsValidSize(p) => new(game, null, p),
         GameKind.TicTacToe or GameKind.ConnectFour when pairs is null && difficulty is { } d && Enum.IsDefined(d) => new(game, d, null),
         _ => null
@@ -34,7 +34,7 @@ public sealed class LeaderboardService(IGameResultRepository results, ICurrentUs
 
     private static ServiceError ErrorFor(GameKind game) => ServiceError.Invalid(game switch
     {
-        GameKind.Snake => NoVariant,
+        GameKind.Snake or GameKind.Mastermind => NoVariant,
         GameKind.Memory => NeedsPairs,
         _ => NeedsDifficulty
     });

@@ -19,7 +19,7 @@ public static class LeaderboardCalculator
     {
         var rows = Standings(board, results)
             .Select((entry, index) => new LeaderboardRowDto(
-                index + 1, entry.Player, entry.Value, entry.Tiebreak, entry.Games, entry.Player == me))
+                index + 1, entry.Player, entry.Value, entry.Tiebreak, entry.Games, entry.Player == me, entry.Solve))
             .ToList();
 
         return new LeaderboardDto(board.Game, board.Difficulty, board.Pairs, rows);

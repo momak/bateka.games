@@ -15,6 +15,7 @@ public static class BoardFormat
     {
         GameKind.Snake => Points(row.Value),
         GameKind.Memory => $"{Moves(row.Value)} · {TimeFormat.MinutesSeconds(row.Tiebreak ?? 0)}",
+        GameKind.Mastermind => row.Solve is { } solve ? $"{Points(row.Value)} · {Solve(solve)}" : Points(row.Value),
         _ => $"{Wins(row.Value)} · {row.Tiebreak ?? 0:0}%"
     };
 
@@ -25,12 +26,20 @@ public static class BoardFormat
 
     private static string Main(GameKind game, int value) => game switch
     {
-        GameKind.Snake => Points(value),
+        GameKind.Snake or GameKind.Mastermind => Points(value),
         GameKind.Memory => Moves(value),
         _ => Wins(value)
     };
 
     private static string Points(int value) => $"{value} pts";
+
+    /// <summary>"6×8 · 4 guesses", "4×6 no repeats · 1 guess".</summary>
+    private static string Solve(MastermindSolveDto solve)
+    {
+        var repeats = solve.AllowRepeats ? string.Empty : " no repeats";
+        var guesses = solve.Guesses == 1 ? "1 guess" : $"{solve.Guesses} guesses";
+        return $"{solve.Columns}×{solve.Colours}{repeats} · {guesses}";
+    }
     private static string Moves(int value) => value == 1 ? "1 move" : $"{value} moves";
     private static string Wins(int value) => value == 1 ? "1 win" : $"{value} wins";
 }

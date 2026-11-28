@@ -20,6 +20,20 @@ public static class Players
     public static GameResult TicTacToe(string player, GameOutcome outcome, int minute, Difficulty difficulty = Difficulty.Hard) =>
         New(player, GameKind.TicTacToe, outcome, minute, r => { r.Moves = 7; r.Difficulty = difficulty; });
 
+    /// <summary>A Mastermind game; <paramref name="points"/> null = lost (every guess used).</summary>
+    public static GameResult Mastermind(string player, int? points, int guesses, int seconds, int minute,
+        int columns = 4, int colours = 6, bool repeats = true) =>
+        New(player, GameKind.Mastermind, points is null ? GameOutcome.Loss : GameOutcome.Win, minute, r =>
+        {
+            r.Score = points;
+            r.Moves = guesses;
+            r.DurationMs = seconds * 1000;
+            r.Columns = columns;
+            r.Colours = colours;
+            r.AllowRepeats = repeats;
+            r.GuessLimit = 10;
+        });
+
     private static GameResult New(string player, GameKind game, GameOutcome outcome, int minute, Action<GameResult> fill)
     {
         var result = new GameResult { Id = Guid.NewGuid(), UserId = player, Game = game, Outcome = outcome, PlayedAt = At(minute) };

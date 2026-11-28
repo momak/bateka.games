@@ -1,18 +1,23 @@
 using bateka.games.Domain.Entities;
 using bateka.games.Shared.Contracts.Games;
+using bateka.games.Shared.Contracts.Leaderboards;
 
 namespace bateka.games.Services.Boards;
 
 /// <summary>
 /// How a board ranks players. Snake: best score. Memory: fewest moves, then fastest. Tic Tac Toe and
-/// Connect Four: most wins, then best win rate. A tie goes to whoever got there first.
+/// Connect Four: most wins, then best win rate. Mastermind: the best solve's points, then its time —
+/// only solved games put you on it. A tie goes to whoever got there first.
 /// </summary>
 public static class BoardRules
 {
     private const double MillisecondsPerSecond = 1000;
     private const int PercentDecimals = 1;
 
-    /// <summary>The player's standing from their results on that board (any order), or null with none.</summary>
+    /// <summary>
+    /// The player's standing from their results on that board (any order), or null when they aren't on
+    /// it: no results — or, in Mastermind, nothing solved yet.
+    /// </summary>
     public static BoardEntry? EntryFor(BoardKey board, string player, IEnumerable<GameResult> results)
     {
         var games = results.Where(board.Contains).OrderBy(r => r.PlayedAt).ToList();
@@ -22,6 +27,7 @@ public static class BoardRules
         {
             GameKind.Snake => SnakeEntry(player, games),
             GameKind.Memory => MemoryEntry(player, games),
+            GameKind.Mastermind => MastermindEntry(player, games),
             _ => WinsEntry(player, games)
         };
     }
@@ -31,10 +37,10 @@ public static class BoardRules
     {
         var byValue = game == GameKind.Memory
             ? a.Value.CompareTo(b.Value)    // fewer moves first
-            : b.Value.CompareTo(a.Value);   // higher score / more wins first
+            : b.Value.CompareTo(a.Value);   // higher score / more wins / more points first
         if (byValue != 0) return byValue;
 
-        var byTiebreak = game == GameKind.Memory
+        var byTiebreak = game is GameKind.Memory or GameKind.Mastermind
             ? (a.Tiebreak ?? 0).CompareTo(b.Tiebreak ?? 0)  // faster first
             : (b.Tiebreak ?? 0).CompareTo(a.Tiebreak ?? 0); // better win rate first
         if (byTiebreak != 0) return byTiebreak;
@@ -55,6 +61,16 @@ public static class BoardRules
     {
         var best = games.OrderBy(g => g.Moves ?? int.MaxValue).ThenBy(g => g.DurationMs ?? int.MaxValue).ThenBy(g => g.PlayedAt).First();
         return new BoardEntry(player, best.Moves ?? 0, (best.DurationMs ?? 0) / MillisecondsPerSecond, games.Count, best.PlayedAt);
+    }
+
+    private static BoardEntry? MastermindEntry(string player, List<GameResult> games)
+    {
+        var solved = games.Where(g => g.Outcome == GameOutcome.Win).ToList();
+        if (solved.Count == 0) return null;
+
+        var best = solved.OrderByDescending(g => g.Score ?? 0).ThenBy(g => g.DurationMs ?? int.MaxValue).ThenBy(g => g.PlayedAt).First();
+        var solve = new MastermindSolveDto(best.Columns ?? 0, best.Colours ?? 0, best.AllowRepeats ?? false, best.Moves ?? 0);
+        return new BoardEntry(player, best.Score ?? 0, (best.DurationMs ?? 0) / MillisecondsPerSecond, games.Count, best.PlayedAt, solve);
     }
 
     private static BoardEntry WinsEntry(string player, List<GameResult> games)

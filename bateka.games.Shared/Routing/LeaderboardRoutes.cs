@@ -4,8 +4,8 @@ using bateka.games.Shared.Contracts.Games;
 namespace bateka.games.Shared.Routing;
 
 /// <summary>
-/// One game's all-time board. Snake has one board; Memory one per size (<c>?pairs=6</c>);
-/// Tic Tac Toe and Connect Four one per difficulty (<c>?difficulty=hard</c>).
+/// One game's all-time board. Snake and Mastermind have one board; Memory one per size
+/// (<c>?pairs=6</c>); Tic Tac Toe and Connect Four one per difficulty (<c>?difficulty=hard</c>).
 /// </summary>
 public static class LeaderboardRoutes
 {

@@ -1,3 +1,4 @@
+using bateka.games.Engine;
 using MudBlazor;
 
 namespace bateka.games.Presentation;
@@ -9,4 +10,12 @@ namespace bateka.games.Presentation;
 public static class ChipStyle
 {
     public static Variant For(bool selected) => selected ? Variant.Filled : Variant.Outlined;
+
+    /// <summary>The difficulty colours used wherever one is picked: Easy green, Medium orange, Hard red.</summary>
+    public static Color ColorFor(Difficulty difficulty) => difficulty switch
+    {
+        Difficulty.Easy => Color.Success,
+        Difficulty.Medium => Color.Warning,
+        _ => Color.Error
+    };
 }

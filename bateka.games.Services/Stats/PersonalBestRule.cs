@@ -5,8 +5,9 @@ using bateka.games.Shared.Contracts.Stats;
 namespace bateka.games.Services.Stats;
 
 /// <summary>
-/// Whether a new result beats your own best: Snake's high score, or Memory's fewest moves (then
-/// fastest) on that board size. The other games count wins, so they have no single best.
+/// Whether a new result beats your own best: Snake's high score, Memory's fewest moves (then
+/// fastest) on that board size, or a Mastermind solve worth more points than any before. The other
+/// games count wins, so they have no single best.
 /// </summary>
 public static class PersonalBestRule
 {
@@ -17,6 +18,7 @@ public static class PersonalBestRule
     {
         GameKind.Snake => (result.Score ?? 0) > before.Snake.HighScore,
         GameKind.Memory => BeatsMemoryBest(result, before.Memory),
+        GameKind.Mastermind => result.Outcome == GameOutcome.Win && (result.Score ?? 0) > before.Mastermind.BestPoints,
         _ => false
     };
 

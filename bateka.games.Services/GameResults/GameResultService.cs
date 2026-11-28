@@ -1,9 +1,12 @@
 using bateka.games.Domain.Entities;
+using bateka.games.Engine.Mastermind;
 using bateka.games.Services.Abstractions;
 using bateka.games.Services.Boards;
 using bateka.games.Services.Stats;
 using bateka.games.Shared.Contracts.Results;
 using bateka.games.Shared.Contracts.Stats;
+using bateka.games.Shared.Validation;
+using bateka.games.Shared.Contracts.Games;
 
 namespace bateka.games.Services.GameResults;
 
@@ -25,10 +28,14 @@ public sealed class GameResultService(IGameResultRepository results, ICurrentUse
             Outcome = request.Outcome,
             Difficulty = request.Difficulty,
             Pairs = request.Pairs,
-            Score = request.Score,
+            Score = ScoreFor(request),
             Length = request.Length,
             Moves = request.Moves,
             DurationMs = request.DurationMs,
+            Columns = request.Columns,
+            Colours = request.Colours,
+            AllowRepeats = request.AllowRepeats,
+            GuessLimit = request.GuessLimit,
             PlayedAt = clock.GetUtcNow().UtcDateTime
         };
 
@@ -45,6 +52,14 @@ public sealed class GameResultService(IGameResultRepository results, ICurrentUse
             GameStatsCalculator.For([.. history, result]),
             PassCalculator.Passed(boardBefore, result));
     }
+
+    /// <summary>Snake sends its score; a Mastermind solve's points are worked out here from its board and guesses.</summary>
+    private static int? ScoreFor(RecordGameResultRequest request) =>
+        request.Game == GameKind.Mastermind
+            ? request.Outcome == GameOutcome.Win && ResultRequestBoards.MastermindBoard(request) is { } board && request.Moves is { } guesses
+                ? MastermindPoints.For(board, guesses)
+                : null
+            : request.Score;
 
     public async Task<MyStatsDto> GetMineAsync(CancellationToken ct) =>
         GameStatsCalculator.For(await results.ListForUserAsync(currentUser.UserId, ct));

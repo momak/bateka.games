@@ -20,7 +20,8 @@ public static class GameStatsCalculator
             Snake(byGame[GameKind.Snake]),
             Memory(byGame[GameKind.Memory]),
             TicTacToe(byGame[GameKind.TicTacToe]),
-            ConnectFour(byGame[GameKind.ConnectFour]));
+            ConnectFour(byGame[GameKind.ConnectFour]),
+            Mastermind(byGame[GameKind.Mastermind]));
     }
 
     private static SnakeStatsDto Snake(IEnumerable<GameResult> games)
@@ -61,6 +62,19 @@ public static class GameStatsCalculator
             Losses: list.Count(g => g.Outcome == GameOutcome.Loss),
             Draws: list.Count(g => g.Outcome == GameOutcome.Draw),
             TotalMoves: list.Sum(g => g.Moves ?? 0));
+    }
+
+    private static MastermindStatsDto Mastermind(IEnumerable<GameResult> games)
+    {
+        var list = games.ToList();
+        if (list.Count == 0) return MastermindStatsDto.Empty;
+
+        var solved = list.Where(g => g.Outcome == GameOutcome.Win).ToList();
+        return new MastermindStatsDto(
+            GamesPlayed: list.Count,
+            Solved: solved.Count,
+            BestPoints: solved.Count == 0 ? 0 : solved.Max(g => g.Score ?? 0),
+            AverageGuesses: solved.Count == 0 ? 0 : Math.Round(solved.Average(g => g.Moves ?? 0), 1));
     }
 
     private static ConnectFourStatsDto ConnectFour(IEnumerable<GameResult> games)

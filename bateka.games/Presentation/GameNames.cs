@@ -7,13 +7,14 @@ namespace bateka.games.Presentation;
 public static class GameNames
 {
     public static readonly IReadOnlyList<GameKind> All =
-        [GameKind.Snake, GameKind.Memory, GameKind.TicTacToe, GameKind.ConnectFour];
+        [GameKind.Snake, GameKind.Memory, GameKind.TicTacToe, GameKind.ConnectFour, GameKind.Mastermind];
 
     public static string Of(GameKind game) => game switch
     {
         GameKind.Snake => "Snake",
         GameKind.Memory => "Memory Match",
         GameKind.TicTacToe => "Tic Tac Toe",
+        GameKind.Mastermind => "Mastermind",
         _ => "Connect Four"
     };
 

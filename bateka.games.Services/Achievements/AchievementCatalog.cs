@@ -19,6 +19,11 @@ public static class AchievementCatalog
     private const int MassiveSnakeLength = 15;
     private const int DedicatedGames = 50;
     private const int OnARollStreak = 3;
+    private const int MindReaderGuesses = 4;
+    private const int MindReaderColumns = 4;
+    private const int MindReaderColours = 6;
+    private const int MastermindColumns = 5;
+    private const int MastermindColours = 8;
 
     public static readonly IReadOnlyList<AchievementDefinition> All =
     [
@@ -60,6 +65,18 @@ public static class AchievementCatalog
             c => c.Stats.ConnectFour.LongestWinStreak >= OnARollStreak),
         new("cf.ten-wins", "👑", "Connect King", $"Win {ManyWins} Connect Four games.",
             c => c.Stats.ConnectFour.Wins >= ManyWins),
+
+        // Mastermind
+        new("mm.first", "🔐", "Code Breaker", "Crack your first Mastermind code.",
+            c => c.Stats.Mastermind.Solved >= 1),
+        new("mm.mind-reader", "🔮", "Mind Reader",
+            $"Crack a code of {MindReaderColumns}+ columns and {MindReaderColours}+ colours in {MindReaderGuesses} guesses or fewer.",
+            c => c.Results.Any(r => r.Game == GameKind.Mastermind && r.Outcome == GameOutcome.Win
+                                    && r.Moves <= MindReaderGuesses && r.Columns >= MindReaderColumns && r.Colours >= MindReaderColours)),
+        new("mm.mastermind", "🎓", "Mastermind",
+            $"Crack a code of {MastermindColumns}+ columns, {MastermindColours} colours, repeats on.",
+            c => c.Results.Any(r => r.Game == GameKind.Mastermind && r.Outcome == GameOutcome.Win
+                                    && r.Columns >= MastermindColumns && r.Colours >= MastermindColours && r.AllowRepeats == true)),
 
         // Every game
         new("all.gamer", "🎮", "Gamer", "Play all four games at least once.",

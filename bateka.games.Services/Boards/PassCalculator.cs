@@ -13,7 +13,8 @@ public static class PassCalculator
 
         var mine = boardBefore.Where(r => r.UserId == me).ToList();
         var meBefore = BoardRules.EntryFor(board, me, mine);
-        var meAfter = BoardRules.EntryFor(board, me, [.. mine, newResult])!;
+        // a Mastermind loss with nothing solved yet: not on the board, nobody passed
+        if (BoardRules.EntryFor(board, me, [.. mine, newResult]) is not { } meAfter) return [];
 
         return boardBefore
             .Where(r => r.UserId != me)

@@ -36,7 +36,7 @@
                         SelectionMode="SelectionMode.SingleSelection" CheckMark="false">
                 @foreach (var difficulty in Difficulties)
                 {
-                    <MudChip T="Difficulty" Value="difficulty" Size="Size.Small" Color="Color.Primary" Variant="@ChipStyle.For(difficulty == _difficulty)">@difficulty</MudChip>
+                    <MudChip T="Difficulty" Value="difficulty" Size="Size.Small" Color="@ChipStyle.ColorFor(difficulty)" Variant="@ChipStyle.For(difficulty == _difficulty)">@difficulty</MudChip>
                 }
             </MudChipSet>
         }

@@ -1,3 +1,4 @@
+using bateka.games.Engine.Mastermind;
 using bateka.games.Engine.Memory;
 using bateka.games.Engine.Snake;
 using bateka.games.Shared.Contracts.Games;
@@ -20,6 +21,39 @@ public sealed class RecordGameResultRequestValidator : AbstractValidator<RecordG
     {
         RuleFor(x => x.Game).IsInEnum();
         RuleFor(x => x.Outcome).IsInEnum();
+
+        // Mastermind's board fields mean nothing to the other games
+        When(x => x.Game != GameKind.Mastermind, () =>
+        {
+            RuleFor(x => x.Columns).Null().WithMessage(NotForThisGame);
+            RuleFor(x => x.Colours).Null().WithMessage(NotForThisGame);
+            RuleFor(x => x.AllowRepeats).Null().WithMessage(NotForThisGame);
+            RuleFor(x => x.GuessLimit).Null().WithMessage(NotForThisGame);
+        });
+
+        When(x => x.Game == GameKind.Mastermind, () =>
+        {
+            RuleFor(x => x.Outcome).Must(o => o is GameOutcome.Win or GameOutcome.Loss).WithMessage("Solved or not.");
+            RuleFor(x => x.Columns).NotNull().WithMessage(Required);
+            RuleFor(x => x.Colours).NotNull().WithMessage(Required);
+            RuleFor(x => x.AllowRepeats).NotNull().WithMessage(Required);
+            RuleFor(x => x.GuessLimit).NotNull().WithMessage(Required);
+            RuleFor(x => x)
+                .Must(x => ResultRequestBoards.MastermindBoard(x) is { } setup && MastermindRules.IsValidSetup(setup))
+                .When(x => x.Columns is not null && x.Colours is not null && x.AllowRepeats is not null && x.GuessLimit is not null)
+                .WithName(nameof(RecordGameResultRequest.Columns))
+                .WithMessage("Not a board the game offers.");
+            RuleFor(x => x.Moves).NotNull().WithMessage(Required)
+                .Must((x, moves) => moves >= 1 && moves <= x.GuessLimit).WithMessage("Between one guess and the limit.");
+            // a loss means every allowed guess was used
+            RuleFor(x => x.Moves).Equal(x => x.GuessLimit).When(x => x.Outcome == GameOutcome.Loss)
+                .WithMessage("A lost game used every guess.");
+            RuleFor(x => x.DurationMs).NotNull().WithMessage(Required).InclusiveBetween(0, ResultLimits.MaxDurationMs);
+            RuleFor(x => x.Difficulty).Null().WithMessage(NotForThisGame);
+            RuleFor(x => x.Pairs).Null().WithMessage(NotForThisGame);
+            RuleFor(x => x.Score).Null().WithMessage("Points are worked out by the server.");
+            RuleFor(x => x.Length).Null().WithMessage(NotForThisGame);
+        });
 
         When(x => x.Game == GameKind.Snake, () =>
         {

@@ -1,5 +1,6 @@
 using bateka.games.Engine;
 using bateka.games.Engine.ConnectFour;
+using bateka.games.Engine.Mastermind;
 using bateka.games.Engine.Memory;
 using bateka.games.Engine.Snake;
 using bateka.games.Engine.TicTacToe;
@@ -41,6 +42,19 @@ public static class ResultRequests
         },
         Difficulty = difficulty,
         Moves = game.Moves
+    };
+
+    /// <summary>A solved or lost game, with its board. The points are worked out by the API.</summary>
+    public static RecordGameResultRequest ForMastermind(MastermindGame game, int elapsedSeconds) => new()
+    {
+        Game = GameKind.Mastermind,
+        Outcome = game.IsSolved ? GameOutcome.Win : GameOutcome.Loss,
+        Moves = game.GuessesUsed,
+        DurationMs = elapsedSeconds * MillisecondsPerSecond,
+        Columns = game.Setup.Columns,
+        Colours = game.Setup.Colours,
+        AllowRepeats = game.Setup.AllowRepeats,
+        GuessLimit = game.Setup.Guesses
     };
 
     /// <summary>Against the computer only; two-player games aren't sent.</summary>
