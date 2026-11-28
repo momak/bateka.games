@@ -13,6 +13,9 @@ public static class MatchLimits
     /// <summary>An invite nobody joins is cancelled after this.</summary>
     public static readonly TimeSpan InviteLifetime = TimeSpan.FromHours(24);
 
+    /// <summary>Longest username a direct invite may name (the database column's length).</summary>
+    public const int MaxUsernameLength = 256;
+
     /// <summary>How many finished matches "my matches" lists besides the open ones.</summary>
     public const int RecentFinished = 20;
 }

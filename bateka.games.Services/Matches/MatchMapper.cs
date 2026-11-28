@@ -12,6 +12,7 @@ public static class MatchMapper
         Status = match.Status,
         Creator = match.CreatorId,
         Opponent = match.OpponentId,
+        Invited = match.InvitedId,
         FirstPlayer = match.FirstPlayerId,
         PlayerToMove = MatchPlayers.ToMove(match),
         Moves = [.. match.Moves],
@@ -19,6 +20,7 @@ public static class MatchMapper
         MoveDeadline = match.MoveDeadline,
         Winner = match.WinnerId,
         EndReason = match.EndReason,
+        RematchId = match.RematchId,
         CreatedAt = match.CreatedAt,
         StartedAt = match.StartedAt,
         FinishedAt = match.FinishedAt

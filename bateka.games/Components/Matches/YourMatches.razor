@@ -15,6 +15,10 @@
                         {
                             <MudChip T="string" Size="Size.Small" Color="Color.Primary">Your turn</MudChip>
                         }
+                        else if (match.Status == MatchStatus.Waiting && match.Invited == _me)
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="Color.Secondary">Invite</MudChip>
+                        }
                         <MudText Typo="Typo.body2">
                             <b>@GameNames.Of(match.Game)</b> · @MatchFormat.ListLine(match, _me)
                         </MudText>

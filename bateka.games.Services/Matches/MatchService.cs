@@ -1,6 +1,7 @@
 using bateka.games.Domain.Entities;
 using bateka.games.Services.Abstractions;
 using bateka.games.Services.Results;
+using bateka.games.Shared.Contracts.Games;
 using bateka.games.Shared.Contracts.Matches;
 using bateka.games.Shared.Matches;
 
@@ -14,25 +15,60 @@ namespace bateka.games.Services.Matches;
 /// </summary>
 public sealed class MatchService(
     IMatchRepository matches,
+    IPlayerRepository players,
     IMatchNotifier notifier,
     ICurrentUser currentUser,
     TimeProvider clock)
 {
-    public async Task<MatchDto> CreateAsync(CreateMatchRequest request, CancellationToken ct)
+    /// <summary>A new invite: for anyone with the link, or (with an opponent) for that player only.</summary>
+    public async Task<ServiceResult<MatchDto>> CreateAsync(CreateMatchRequest request, CancellationToken ct)
     {
-        var match = new Match
-        {
-            Id = Guid.NewGuid(),
-            Game = request.Game,
-            Status = MatchStatus.Waiting,
-            CreatorId = currentUser.UserId,
-            MoveSeconds = request.MoveSeconds,
-            CreatedAt = Now
-        };
+        var me = currentUser.UserId;
+        var invited = request.Opponent?.Trim();
 
+        if (invited is not null)
+        {
+            if (invited == me) return ServiceError.Invalid(MatchMessages.InviteYourself);
+            if (!(await players.ListKnownAsync(ct)).Contains(invited)) return ServiceError.Invalid(MatchMessages.UnknownPlayer);
+        }
+
+        var match = NewInvite(request.Game, request.MoveSeconds, invited);
         matches.Add(match);
         await matches.TrySaveChangesAsync(ct); // a new row can't conflict
-        return MatchMapper.ToDto(match);
+
+        // a direct invite pops up on the invited player's screen
+        return await NotifyAsync(match, ct);
+    }
+
+    /// <summary>
+    /// After a finished game: the same game and time, as a direct invite to the other player. Only one
+    /// per match — if they asked first, this answers with their rematch, so both end up in the same one.
+    /// </summary>
+    public async Task<ServiceResult<MatchDto>> RematchAsync(Guid id, CancellationToken ct)
+    {
+        var me = currentUser.UserId;
+        var finished = await LoadAsync(id, ct);
+        if (finished is null || !MatchPlayers.IsPlayer(finished, me)) return ServiceError.NotFound(MatchMessages.NotFound);
+        if (finished.Status != MatchStatus.Finished) return ServiceError.Conflict(MatchMessages.NoRematch);
+
+        if (finished.RematchId is { } existing) return await GetAsync(existing, ct);
+
+        var rematch = NewInvite(finished.Game, finished.MoveSeconds, MatchPlayers.Other(finished, me));
+        finished.RematchId = rematch.Id;
+        matches.Add(rematch);
+
+        if (!await matches.TrySaveChangesAsync(ct))
+        {
+            // the other player offered one at the same moment: use theirs
+            var reread = await matches.GetAsync(id, ct);
+            return reread?.RematchId is { } theirs
+                ? await GetAsync(theirs, ct)
+                : ServiceError.Conflict(MatchMessages.ChangedMeanwhile);
+        }
+
+        // the finished match now points at it (both match pages show "Play rematch"), and the invite pops up
+        await NotifyAsync(finished, ct);
+        return await NotifyAsync(rematch, ct);
     }
 
     /// <summary>A waiting match is visible to anyone with the link (it's the invite); after that only to its players.</summary>
@@ -71,6 +107,7 @@ public sealed class MatchService(
         if (match is null) return ServiceError.NotFound(MatchMessages.NotFound);
 
         if (match.CreatorId == me) return ServiceError.Invalid(MatchMessages.OwnInvite);
+        if (match.InvitedId is not null && match.InvitedId != me) return ServiceError.NotFound(MatchMessages.NotForYou);
         if (match.Status == MatchStatus.Playing) return ServiceError.Conflict(MatchMessages.AlreadyTaken);
         if (match.Status != MatchStatus.Waiting) return ServiceError.Conflict(MatchMessages.NoLongerOpen);
 
@@ -157,6 +194,17 @@ public sealed class MatchService(
     }
 
     private DateTime Now => clock.GetUtcNow().UtcDateTime;
+
+    private Match NewInvite(GameKind game, int moveSeconds, string? invited) => new()
+    {
+        Id = Guid.NewGuid(),
+        Game = game,
+        Status = MatchStatus.Waiting,
+        CreatorId = currentUser.UserId,
+        InvitedId = invited,
+        MoveSeconds = moveSeconds,
+        CreatedAt = Now
+    };
 
     /// <summary>Pushes the saved match to its watchers and returns what was pushed.</summary>
     private async Task<MatchDto> NotifyAsync(Match match, CancellationToken ct)

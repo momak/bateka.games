@@ -1,0 +1,5 @@
+@* The invite link as a QR code: point the phone's camera at it. *@
+@if (_dataUrl is not null)
+{
+    <img class="invite-qr" src="@_dataUrl" alt="QR code of the invite link" width="@Size" height="@Size" />
+}

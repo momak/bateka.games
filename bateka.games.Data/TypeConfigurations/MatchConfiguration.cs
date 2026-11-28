@@ -16,6 +16,7 @@ public sealed class MatchConfiguration : IEntityTypeConfiguration<Match>
 
         b.Property(x => x.CreatorId).HasMaxLength(ColumnLengths.UserId).IsRequired();
         b.Property(x => x.OpponentId).HasMaxLength(ColumnLengths.UserId);
+        b.Property(x => x.InvitedId).HasMaxLength(ColumnLengths.UserId);
         b.Property(x => x.FirstPlayerId).HasMaxLength(ColumnLengths.UserId);
         b.Property(x => x.WinnerId).HasMaxLength(ColumnLengths.UserId);
 
@@ -28,6 +29,7 @@ public sealed class MatchConfiguration : IEntityTypeConfiguration<Match>
         // "my matches", from either seat
         b.HasIndex(x => new { x.CreatorId, x.Status });
         b.HasIndex(x => new { x.OpponentId, x.Status });
+        b.HasIndex(x => new { x.InvitedId, x.Status });
 
         // the clock: playing matches past their deadline, waiting invites past their lifetime
         b.HasIndex(x => new { x.Status, x.MoveDeadline });

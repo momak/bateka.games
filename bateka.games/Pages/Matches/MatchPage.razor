@@ -42,9 +42,20 @@
             @* the invite: send the link *@
             <MudPaper Elevation="2" Class="pa-4 rounded-xl" Style="width:100%; max-width:440px;">
                 <MudStack Spacing="3">
-                    <MudText Typo="Typo.body2">
-                        Send this link. The first person to open it plays you — @MatchFormat.MoveTime(match.MoveSeconds) per move.
-                    </MudText>
+                    @if (match.Invited is { } invited)
+                    {
+                        <MudText Typo="Typo.body2">
+                            <b>@invited</b> gets a pop-up and finds it under "Your matches" — @MatchFormat.MoveTime(match.MoveSeconds) per move.
+                            Next to them? Let them scan this.
+                        </MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2">
+                            Scan it with the other phone, or send the link. The first person to open it plays you — @MatchFormat.MoveTime(match.MoveSeconds) per move.
+                        </MudText>
+                    }
+                    <InviteQrCode Url="@InviteUrl" />
                     <MudTextField T="string" Value="@InviteUrl" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Dense" />
                     <MudStack Row="true" Spacing="2" Justify="Justify.Center" Class="flex-wrap">
                         @if (_canShare)
@@ -126,14 +137,27 @@
             }
         }
 
+        @if (match.Status == MatchStatus.Finished && match.RematchId is not null)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Primary">🔁 A rematch is waiting</MudText>
+        }
+
         @if (match.Status is MatchStatus.Finished or MatchStatus.Cancelled)
         {
             <MudStack Row="true" Spacing="2" Justify="Justify.Center" Class="flex-wrap">
-                <BusyButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Replay"
+                @if (match.Status == MatchStatus.Finished)
+                {
+                    @* same opponent, same game and time; whoever asks second just joins the first one's *@
+                    <BusyButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Replay"
+                                Busy="@IsRunning(nameof(RematchAsync))" Disabled="IsBusy" OnClick="RematchAsync">
+                        @(match.RematchId is null ? "Rematch" : "Play rematch")
+                    </BusyButton>
+                }
+                <BusyButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Link"
                             Busy="@IsRunning(nameof(NewMatchAsync))" Disabled="IsBusy" OnClick="NewMatchAsync">
-                    New invite
+                    New invite link
                 </BusyButton>
-                <MudButton Variant="Variant.Outlined" Color="Color.Default" Href="@PageRoutes.Games">
+                <MudButton Variant="Variant.Text" Color="Color.Default" Href="@PageRoutes.Games">
                     Back to games
                 </MudButton>
             </MudStack>

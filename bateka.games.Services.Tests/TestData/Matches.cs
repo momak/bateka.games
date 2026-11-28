@@ -20,6 +20,14 @@ public static class Matches
         CreatedAt = Players.At(createdMinute)
     };
 
+    /// <summary>Ana's invite for <paramref name="invited"/> only.</summary>
+    public static Match DirectInvite(string invited)
+    {
+        var match = Waiting();
+        match.InvitedId = invited;
+        return match;
+    }
+
     /// <summary>Started at minute 0; <paramref name="moves"/> already played; deadline one minute after <paramref name="lastMoveMinute"/>.</summary>
     public static Match Playing(int[] moves, int lastMoveMinute = 0)
     {

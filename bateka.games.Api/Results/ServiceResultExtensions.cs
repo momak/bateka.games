@@ -9,6 +9,10 @@ public static class ServiceResultExtensions
     public static IActionResult ToActionResult<T>(this ControllerBase controller, ServiceResult<T> result) =>
         result.Error is { } error ? controller.ToProblem(error) : controller.Ok(result.Value);
 
+    /// <summary>201 with the value, or the ProblemDetails.</summary>
+    public static IActionResult ToCreatedResult<T>(this ControllerBase controller, ServiceResult<T> result) =>
+        result.Error is { } error ? controller.ToProblem(error) : controller.StatusCode(StatusCodes.Status201Created, result.Value);
+
     private static IActionResult ToProblem(this ControllerBase controller, ServiceError error) =>
         controller.Problem(detail: error.Message, statusCode: error.Status switch
         {

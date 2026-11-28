@@ -16,6 +16,8 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="11.0.0" PrivateAssets="all" />
 		<!-- Online matches: live moves from games-api's hub (same version as Bateka.AI). -->
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="11.0.0" />
+		<!-- QR code of an invite link (plain C# PNG renderer, works in WebAssembly). -->
+		<PackageReference Include="QRCoder" Version="1.9.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="11.0.0" />
 		<PackageReference Include="MudBlazor" Version="9.14.0" />
 	</ItemGroup>

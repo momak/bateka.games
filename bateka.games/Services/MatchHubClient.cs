@@ -16,6 +16,7 @@ namespace bateka.games.Services;
 public sealed class MatchHubClient : IAsyncDisposable
 {
     private readonly HubConnection _connection;
+    private Task? _starting;
 
     public MatchHubClient(MatchesApiClient api, NavigationManager navigation)
     {
@@ -32,24 +33,36 @@ public sealed class MatchHubClient : IAsyncDisposable
             .Build();
 
         _connection.On<MatchDto>(MatchHubContract.MatchUpdated, match => MatchUpdated?.Invoke(match));
+        _connection.On<MatchDto>(MatchHubContract.MyMatchChanged, match => MyMatchChanged?.Invoke(match));
         _connection.Reconnected += _ => Reconnected?.Invoke() ?? Task.CompletedTask;
     }
 
     /// <summary>A watched match changed (a move, a join, the end).</summary>
     public event Action<MatchDto>? MatchUpdated;
 
+    /// <summary>One of my matches changed, whatever page I'm on (an invite for me, a join, a move, the end).</summary>
+    public event Action<MatchDto>? MyMatchChanged;
+
     /// <summary>Back after a drop (phone locked, network change): watch again and re-read.</summary>
     public event Func<Task>? Reconnected;
 
     public bool IsConnected => _connection.State == HubConnectionState.Connected;
 
-    /// <summary>Starts the connection if it isn't running (a no-op while connecting or reconnecting).</summary>
-    public async Task StartAsync(CancellationToken ct = default)
+    /// <summary>
+    /// Starts the connection, or waits for the start already under way — the layout's invite listener
+    /// and the page both call this at app start, and a Watch sent while still connecting would fail.
+    /// </summary>
+    public Task StartAsync(CancellationToken ct = default)
     {
         if (_connection.State == HubConnectionState.Disconnected)
         {
-            await _connection.StartAsync(ct);
+            // not the caller's token: the start is shared, one leaving page mustn't cancel it for the others
+            _starting = _connection.StartAsync();
         }
+
+        return _connection.State == HubConnectionState.Connected
+            ? Task.CompletedTask
+            : (_starting ?? Task.CompletedTask).WaitAsync(ct);
     }
 
     /// <summary>Send me this match's updates. Read the match after this, not before.</summary>

@@ -3,6 +3,7 @@ using bateka.games.Services.GameResults;
 using bateka.games.Services.Leaderboards;
 using bateka.games.Services.Matches;
 using bateka.games.Services.Notes;
+using bateka.games.Services.Players;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace bateka.games.Services.Extensions;
@@ -21,6 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<AchievementService>();
         services.AddScoped<MatchService>();
         services.AddScoped<MatchClockService>();
+        services.AddScoped<PlayerService>();
         return services;
     }
 }

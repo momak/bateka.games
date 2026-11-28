@@ -3,6 +3,7 @@ using bateka.games.Api.Matches;
 using bateka.games.Services.Abstractions;
 using bateka.games.Shared.Json;
 using bateka.games.Shared.Realtime;
+using Microsoft.AspNetCore.SignalR;
 
 namespace bateka.games.Api.Extensions;
 
@@ -17,6 +18,8 @@ public static class RealtimeExtensions
         services.AddSignalR()
             .AddJsonProtocol(options => GamesJson.Configure(options.PayloadSerializerOptions));
 
+        // Clients.User(name) = every connection of that Bateka user (their phone and their PC)
+        services.AddSingleton<IUserIdProvider, ForwardedUserIdProvider>();
         services.AddSingleton<IMatchNotifier, MatchHubNotifier>();
         services.AddHostedService<MatchClock>();
 

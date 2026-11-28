@@ -24,6 +24,10 @@ public sealed class MatchesApiClient(HttpClient http) : ApiClientBase(http, Game
     public Task<MatchDto> MoveAsync(Guid id, int move, CancellationToken ct = default) =>
         PostAsync<MatchDto>(MatchRoutes.MovesFor(id), new MakeMoveRequest { Move = move }, ct);
 
+    /// <summary>After a finished game: a direct invite to the same opponent (or the one they offered first).</summary>
+    public Task<MatchDto> RematchAsync(Guid id, CancellationToken ct = default) =>
+        PostAsync<MatchDto>(MatchRoutes.RematchFor(id), body: null, ct);
+
     /// <summary>Gives up a game being played, or withdraws your own invite.</summary>
     public Task<MatchDto> ResignAsync(Guid id, CancellationToken ct = default) =>
         PostAsync<MatchDto>(MatchRoutes.ResignFor(id), body: null, ct);

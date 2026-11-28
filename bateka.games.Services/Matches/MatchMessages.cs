@@ -14,4 +14,8 @@ public static class MatchMessages
     public const string Taken = "That spot is already taken.";
     public const string GameOver = "This game is already over.";
     public const string ChangedMeanwhile = "The match changed in the meantime — have another look.";
+    public const string InviteYourself = "You can't invite yourself.";
+    public const string UnknownPlayer = "That player hasn't played here yet.";
+    public const string NotForYou = "This invite is for someone else.";
+    public const string NoRematch = "A rematch is only possible after a finished game.";
 }

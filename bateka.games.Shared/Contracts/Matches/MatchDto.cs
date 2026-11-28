@@ -19,6 +19,9 @@ public sealed record MatchDto
     /// <summary>Who joined; null while waiting.</summary>
     public string? Opponent { get; init; }
 
+    /// <summary>The only player who may join (a direct invite or a rematch); null = anyone with the link.</summary>
+    public string? Invited { get; init; }
+
     /// <summary>Who moves first (X / Red), picked at random when the opponent joins.</summary>
     public string? FirstPlayer { get; init; }
 
@@ -36,6 +39,9 @@ public sealed record MatchDto
 
     public string? Winner { get; init; }
     public MatchEndReason? EndReason { get; init; }
+
+    /// <summary>The rematch someone offered after this match; null until then.</summary>
+    public Guid? RematchId { get; init; }
 
     public DateTime CreatedAt { get; init; }
     public DateTime? StartedAt { get; init; }

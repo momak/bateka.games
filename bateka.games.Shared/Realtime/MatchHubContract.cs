@@ -15,6 +15,12 @@ public static class MatchHubContract
     /// <summary>Client → server: stop sending them.</summary>
     public const string Unwatch = "Unwatch";
 
-    /// <summary>Server → client: the match changed (argument: the new MatchDto).</summary>
+    /// <summary>Server → client: a watched match changed (argument: the new MatchDto).</summary>
     public const string MatchUpdated = "MatchUpdated";
+
+    /// <summary>
+    /// Server → client, to each player (and the invited one) on any page: one of my matches changed —
+    /// an invite for me, a join, a move, the end. Drives "Your matches" and the invite pop-up.
+    /// </summary>
+    public const string MyMatchChanged = "MyMatchChanged";
 }

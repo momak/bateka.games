@@ -22,6 +22,12 @@ public class Match
     /// <summary>Who joined; null while waiting.</summary>
     public string? OpponentId { get; set; }
 
+    /// <summary>
+    /// The only user who may join (a direct invite or a rematch); null = anyone with the link.
+    /// They see it in "Your matches" and get a pop-up.
+    /// </summary>
+    public string? InvitedId { get; set; }
+
     /// <summary>X / Red — picked at random when the opponent joins.</summary>
     public string? FirstPlayerId { get; set; }
 
@@ -34,6 +40,9 @@ public class Match
     public DateTime? MoveDeadline { get; set; }
 
     public string? WinnerId { get; set; }
+
+    /// <summary>The rematch offered after this match ended (one per match).</summary>
+    public Guid? RematchId { get; set; }
     public MatchEndReason? EndReason { get; set; }
 
     public DateTime CreatedAt { get; set; }

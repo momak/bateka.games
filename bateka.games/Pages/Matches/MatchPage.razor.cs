@@ -159,7 +159,26 @@ public partial class MatchPage : BusyComponentBase, IAsyncDisposable
     private async Task ResignAsync() =>
         await RunAsync(async () => Show(await Matches.ResignAsync(Id)));
 
-    /// <summary>Same game, same time per move, a fresh link.</summary>
+    /// <summary>
+    /// A direct invite to the same opponent. If they asked first, the API answers with their rematch
+    /// (an invite for me) — then join it right away, so it's one tap for both.
+    /// </summary>
+    private async Task RematchAsync()
+    {
+        MatchDto? rematch = null;
+        await RunAsync(async () =>
+        {
+            rematch = await Matches.RematchAsync(Id);
+            if (rematch is { Status: MatchStatus.Waiting } && rematch.Invited == _me)
+            {
+                rematch = await Matches.JoinAsync(rematch.Id);
+            }
+        });
+
+        if (rematch is not null) Navigation.NavigateTo(MatchPageRoutes.For(rematch.Id));
+    }
+
+    /// <summary>Same game, same time per move, a fresh link for anyone.</summary>
     private async Task NewMatchAsync()
     {
         if (_match is null) return;

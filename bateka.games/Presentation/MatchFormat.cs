@@ -41,7 +41,8 @@ public static class MatchFormat
     /// <summary>One line for the match's state.</summary>
     public static string Status(MatchDto match, string me) => match.Status switch
     {
-        MatchStatus.Waiting => match.Creator == me ? Waiting : $"{match.Creator} invites you to play",
+        MatchStatus.Waiting when match.Creator == me => match.Invited is { } invited ? $"Waiting for {invited}" : Waiting,
+        MatchStatus.Waiting => $"{match.Creator} invites you to play",
         MatchStatus.Playing => match.PlayerToMove == me ? "Your turn" : $"{match.PlayerToMove}'s turn",
         MatchStatus.Cancelled => match.EndReason == MatchEndReason.InviteExpired
             ? "Nobody joined in time"
@@ -66,7 +67,8 @@ public static class MatchFormat
     /// <summary>For the "Your matches" list: what's waiting on whom.</summary>
     public static string ListLine(MatchDto match, string me) => match.Status switch
     {
-        MatchStatus.Waiting => match.Creator == me ? "Invite sent — waiting" : $"Invite from {match.Creator}",
+        MatchStatus.Waiting when match.Creator == me => match.Invited is { } invited ? $"Invite sent to {invited}" : "Invite sent — waiting",
+        MatchStatus.Waiting => $"Invite from {match.Creator}",
         MatchStatus.Playing => match.PlayerToMove == me
             ? $"Your turn vs {OpponentOf(match, me)}"
             : $"{OpponentOf(match, me)}'s turn",

@@ -13,7 +13,8 @@ public sealed class MatchRepository(GamesDbContext db) : IMatchRepository
 
     public async Task<IReadOnlyList<Match>> ListForUserAsync(string userId, int recentFinished, CancellationToken ct)
     {
-        var mine = db.Matches.Where(x => x.CreatorId == userId || x.OpponentId == userId);
+        // a direct invite to me counts as mine too
+        var mine = db.Matches.Where(x => x.CreatorId == userId || x.OpponentId == userId || x.InvitedId == userId);
 
         var open = await mine
             .Where(x => x.Status == MatchStatus.Waiting || x.Status == MatchStatus.Playing)

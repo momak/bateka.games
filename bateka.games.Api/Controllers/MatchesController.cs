@@ -10,10 +10,10 @@ namespace bateka.games.Api.Controllers;
 [ApiController]
 public sealed class MatchesController(MatchService matches) : ControllerBase
 {
-    /// <summary>A new match, waiting for someone to open its link.</summary>
+    /// <summary>A new match, waiting for someone to open its link (or for the invited player).</summary>
     [HttpPost(MatchRoutes.Base)]
-    public async Task<ActionResult<MatchDto>> Create(CreateMatchRequest request, CancellationToken ct) =>
-        StatusCode(StatusCodes.Status201Created, await matches.CreateAsync(request, ct));
+    public async Task<IActionResult> Create(CreateMatchRequest request, CancellationToken ct) =>
+        this.ToCreatedResult(await matches.CreateAsync(request, ct));
 
     /// <summary>Waiting and playing matches, then the latest ended ones.</summary>
     [HttpGet(MatchRoutes.Mine)]
@@ -31,6 +31,11 @@ public sealed class MatchesController(MatchService matches) : ControllerBase
     [HttpPost(MatchRoutes.Moves)]
     public async Task<IActionResult> Move(Guid id, MakeMoveRequest request, CancellationToken ct) =>
         this.ToActionResult(await matches.MoveAsync(id, request, ct));
+
+    /// <summary>After a finished game: a direct invite to the same opponent (or the one they already offered).</summary>
+    [HttpPost(MatchRoutes.Rematch)]
+    public async Task<IActionResult> Rematch(Guid id, CancellationToken ct) =>
+        this.ToCreatedResult(await matches.RematchAsync(id, ct));
 
     /// <summary>Gives up a game being played, or withdraws your own invite.</summary>
     [HttpPost(MatchRoutes.Resign)]

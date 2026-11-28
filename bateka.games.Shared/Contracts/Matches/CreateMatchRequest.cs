@@ -10,4 +10,7 @@ public sealed class CreateMatchRequest
 
     /// <summary>Time per move: one of <c>MatchLimits.MoveSecondsOptions</c>.</summary>
     public int MoveSeconds { get; init; }
+
+    /// <summary>Invite this player only (a username from GET api/players); null = anyone with the link.</summary>
+    public string? Opponent { get; init; }
 }

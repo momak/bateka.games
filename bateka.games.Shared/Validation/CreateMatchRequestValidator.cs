@@ -13,5 +13,6 @@ public sealed class CreateMatchRequestValidator : AbstractValidator<CreateMatchR
     {
         RuleFor(x => x.Game).IsInEnum().Must(MatchRules.Supports).WithMessage(NotOnline);
         RuleFor(x => x.MoveSeconds).Must(seconds => MatchLimits.MoveSecondsOptions.Contains(seconds)).WithMessage(NotAMoveTime);
+        RuleFor(x => x.Opponent).NotEmpty().MaximumLength(MatchLimits.MaxUsernameLength).When(x => x.Opponent is not null);
     }
 }

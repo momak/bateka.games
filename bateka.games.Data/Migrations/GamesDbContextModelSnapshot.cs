@@ -109,6 +109,10 @@ namespace bateka.games.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("InvitedId")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
                     b.Property<DateTime?>("MoveDeadline")
                         .HasColumnType("timestamp with time zone");
 
@@ -122,6 +126,9 @@ namespace bateka.games.Data.Migrations
                     b.Property<string>("OpponentId")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("RematchId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("StartedAt")
                         .HasColumnType("timestamp with time zone");
@@ -144,6 +151,8 @@ namespace bateka.games.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatorId", "Status");
+
+                    b.HasIndex("InvitedId", "Status");
 
                     b.HasIndex("OpponentId", "Status");
 
