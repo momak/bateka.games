@@ -1,6 +1,7 @@
 using bateka.games.Services.Achievements;
 using bateka.games.Services.GameResults;
 using bateka.games.Services.Leaderboards;
+using bateka.games.Services.Matches;
 using bateka.games.Services.Notes;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,6 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<LeaderboardService>();
         services.AddScoped<NoteService>();
         services.AddScoped<AchievementService>();
+        services.AddScoped<MatchService>();
         return services;
     }
 }

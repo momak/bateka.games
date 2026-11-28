@@ -8,6 +8,7 @@ public class GamesDbContext(DbContextOptions<GamesDbContext> options) : DbContex
 {
     public DbSet<GameResult> GameResults => Set<GameResult>();
     public DbSet<Player> Players => Set<Player>();
+    public DbSet<Match> Matches => Set<Match>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) =>
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(GamesDbContext).Assembly);
